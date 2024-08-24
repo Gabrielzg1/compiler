@@ -1,16 +1,142 @@
-//
-// Created by Gabriel Guadagnini on 22/08/24.
-//
+#ifndef TOKEN_H
+#define TOKEN_H
 
-#ifndef COMPILER_TOKEN_H
-#define COMPILER_TOKEN_H
+#include <string>
+#include <unordered_map>
 
-namespace Token {
+enum TokenType {
+    sprograma,
+    sinicio,
+    sfim,
+    sprocedimento,
+    sfuncao,
+    sse,
+    sentao,
+    ssenao,
+    senquanto,
+    sfaca,
+    satribuicao,
+    sescreva,
+    sleia,
+    svar,
+    sinteiro,
+    sbooleano,
+    sidentificador,
+    snumero,
+    sponto,
+    sponto_virgula,
+    svirgula,
+    sabre_parenteses,
+    sfecha_parenteses,
+    smaior,
+    smaiorig,
+    sig,
+    smenor,
+    smenorig,
+    sdif,
+    smais,
+    smenos,
+    smult,
+    sdiv,
+    se,
+    sou,
+    snao,
+    sdoispontos,
+    sverdadeiro,
+    sfalso,
+    TOKEN_UNKNOWN
+};
 
-    class Token {
+class Token {
+public:
+    Token(TokenType type, const std::string& lexeme);
 
-    };
+    TokenType getType() const;
+    std::string getLexeme() const;
+    std::string toString() const;
 
-} // Token
+private:
+    TokenType type;
+    std::string lexeme;
 
-#endif //COMPILER_TOKEN_H
+    std::string tokenTypeToString(TokenType type) const;
+};
+
+// Função para criar um Token com base em um lexema
+Token getToken(const std::string& lexema);
+
+// Mapa global que associa lexemas a tokens
+extern std::unordered_map<std::string, TokenType> lexemaToToken;
+
+#endif // TOKEN_H
+#ifndef TOKEN_H
+#define TOKEN_H
+
+#include <string>
+#include <unordered_map>
+
+enum TokenType {
+    sprograma,
+    sinicio,
+    sfim,
+    sprocedimento,
+    sfuncao,
+    sse,
+    sentao,
+    ssenao,
+    senquanto,
+    sfaca,
+    satribuicao,
+    sescreva,
+    sleia,
+    svar,
+    sinteiro,
+    sbooleano,
+    sidentificador,
+    snumero,
+    sponto,
+    sponto_virgula,
+    svirgula,
+    sabre_parenteses,
+    sfecha_parenteses,
+    smaior,
+    smaiorig,
+    sig,
+    smenor,
+    smenorig,
+    sdif,
+    smais,
+    smenos,
+    smult,
+    sdiv,
+    se,
+    sou,
+    snao,
+    sdoispontos,
+    sverdadeiro,
+    sfalso,
+    TOKEN_UNKNOWN
+};
+
+class Token {
+public:
+    Token(TokenType type, const std::string& lexeme);
+
+    TokenType getType() const;
+    std::string getLexeme() const;
+    std::string toString() const;
+
+private:
+    TokenType type;
+    std::string lexeme;
+
+    std::string tokenTypeToString(TokenType type) const;
+};
+
+// Função para criar um Token com base em um lexema
+Token getToken(const std::string& lexema);
+
+// Mapa global que associa lexemas a tokens
+extern std::unordered_map<std::string, TokenType> lexemaToToken;
+
+#endif // TOKEN_H

@@ -1,17 +1,27 @@
-#ifndef COMPILER_LEXICAL_H
-#define COMPILER_LEXICAL_H
-#include <cstdio>    // Para FILE*, fopen, fgetc, fclose
+#ifndef LEXICAL_H
+#define LEXICAL_H
 
+#include <vector>
+#include <string>
+#include <fstream>
+#include "../Token/Token.h"
 
-namespace Lexical {
-    class Lexical {
-    public:
-        Lexical(); // Construtor
-        char getChar(); // Método que retorna um inteiro
-        int printFile();
-        FILE* file;
-    };
+class Lexical {
+public:
+    Lexical(const std::string& filename);
+    ~Lexical();
 
-} // namespace Lexical
+    void analyze();
+    const std::vector<Token>& getTokens() const;
 
-#endif //COMPILER_LEXICAL_H
+private:
+    std::ifstream sourceFile;
+    std::vector<Token> tokens;
+
+    void consumeWhitespaceAndComments();
+    Token getNextToken();
+    bool isLetter(char ch) const;
+    bool isDigit(char ch) const;
+};
+
+#endif // LEXICAL_H

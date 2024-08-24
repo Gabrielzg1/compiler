@@ -1,18 +1,18 @@
 #include <iostream>
-#include <cstdio>
 #include "Lexical/Lexical.h"
 
-using namespace std;
-
 int main() {
-    Lexical::Lexical lexical;
-    char character;
+    try {
+        Lexical lexer("code.txt");
+        lexer.analyze();
 
-    // Loop para ler caracteres até o fim do arquivo
-    while ((character = lexical.getChar()) != EOF) {  // Correção: Parênteses posicionados corretamente
-        if(character == '{') {  // Correção: Comparação de caractere
-            cout << "inicio comentario";
+        const auto& tokens = lexer.getTokens();
+        for (const auto& token : tokens) {
+            std::cout << token.toString() << std::endl;
         }
+    } catch (const std::exception& e) {
+        std::cerr << "Erro: " << e.what() << std::endl;
+        return 1;
     }
 
     return 0;
