@@ -82,7 +82,7 @@ Token Lexical::getNextToken() {
         else return Token(sidentificador, lexeme); // Se não for palavra reservada, é identificador
     }
 
-    // Números
+    // Números *** falta lidar com valores float
     if (isDigit(ch)) {
         lexeme += ch;
         while (sourceFile.get(ch) && isDigit(ch)) {
