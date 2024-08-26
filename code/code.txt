@@ -20,4 +20,10 @@ i:= i+1
 fim;
 escreva(valor)
 fim
-fim
+fim.
+
+{
+se contador > 10
+entao escreva (contador)
+senao escreva (x);
+}

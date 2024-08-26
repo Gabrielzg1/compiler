@@ -1,5 +1,6 @@
 #include "Lexical.h"
 #include <cctype>
+#include "../Token/Token.h"
 
 // Construtor que abre o arquivo fonte
 Lexical::Lexical(const std::string& filename) {
@@ -57,12 +58,28 @@ Token Lexical::getNextToken() {
         sourceFile.putback(ch);
 
         // Verifica se o lexema é uma palavra reservada
-        auto token = getToken(lexeme);
-        if (token.getType() == TOKEN_UNKNOWN) {
-            // Se não for uma palavra reservada, trata como identificador
-            return Token(sidentificador, lexeme);
-        }
-        return token;
+        if (lexeme == "programa") return Token(sprograma, lexeme);
+        else if (lexeme == "se") return Token(sse, lexeme);
+        else if (lexeme == "entao") return Token(sentao, lexeme);
+        else if (lexeme == "senao") return Token(ssenao, lexeme);
+        else if (lexeme == "enquanto") return Token(senquanto, lexeme);
+        else if (lexeme == "faca") return Token(sfaca, lexeme);
+        else if (lexeme == "inicio") return Token(sinicio, lexeme);
+        else if (lexeme == "fim") return Token(sfim, lexeme);
+        else if (lexeme == "escreva") return Token(sescreva, lexeme);
+        else if (lexeme == "leia") return Token(sleia, lexeme);
+        else if (lexeme == "var") return Token(svar, lexeme);
+        else if (lexeme == "inteiro") return Token(sinteiro, lexeme);
+        else if (lexeme == "booleano") return Token(sbooleano, lexeme);
+        else if (lexeme == "verdadeiro") return Token(sverdadeiro, lexeme);
+        else if (lexeme == "falso") return Token(sfalso, lexeme);
+        else if (lexeme == "procedimento") return Token(sprocedimento, lexeme);
+        else if (lexeme == "funcao") return Token(sfuncao, lexeme);
+        else if (lexeme == "div") return Token(sdiv, lexeme);
+        else if (lexeme == "e") return Token(se, lexeme);
+        else if (lexeme == "ou") return Token(sou, lexeme);
+        else if (lexeme == "nao") return Token(snao, lexeme);
+        else return Token(sidentificador, lexeme); // Se não for palavra reservada, é identificador
     }
 
     // Números

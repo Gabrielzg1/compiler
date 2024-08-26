@@ -22,6 +22,10 @@ private:
     Token getNextToken();
     bool isLetter(char ch) const;
     bool isDigit(char ch) const;
+
+
+
+
 };
 
 #endif // LEXICAL_H
