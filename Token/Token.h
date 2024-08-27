@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <system_error>
 
 enum TokenType {
     sprograma,
@@ -47,7 +48,7 @@ enum TokenType {
     TOKEN_UNKNOWN
 };
 
-class Token {
+class Token : public std::__1::error_code {
 public:
     Token(TokenType type, const std::string& lexeme);
 

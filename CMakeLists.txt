@@ -8,4 +8,6 @@ add_executable(compiler main.cpp
         Token/Token.h
         Lexical/Lexical.cpp
         Lexical/Lexical.h
+        SymbolTable/SymbolTable.cpp
+        SymbolTable/SymbolTable.h
 )

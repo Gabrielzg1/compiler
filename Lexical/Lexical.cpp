@@ -1,13 +1,16 @@
 #include "Lexical.h"
 #include <cctype>
 #include "../Token/Token.h"
+#include "../SymbolTable/SymbolTable.h"
 
 // Construtor que abre o arquivo fonte
 Lexical::Lexical(const std::string& filename) {
+    symbolTable = new SymbolTable();
     sourceFile.open(filename);
     if (!sourceFile.is_open()) {
         throw std::runtime_error("Failed to open source file");
     }
+    symbolTable->enterScope(); // Entrar no escopo global
 }
 
 // Destrutor que fecha o arquivo fonte
@@ -15,6 +18,7 @@ Lexical::~Lexical() {
     if (sourceFile.is_open()) {
         sourceFile.close();
     }
+    delete symbolTable;
 }
 
 // Função principal de análise
@@ -34,8 +38,11 @@ void Lexical::consumeWhitespaceAndComments() {
     while (sourceFile.get(ch)) {
         if (ch == '{') {
             // Ignorar comentários entre '{' e '}'
-            while (ch != '}' && sourceFile.get(ch)) {}
-        } else if (!isspace(ch)) {
+            while (sourceFile.get(ch) && ch != '}') {}
+        } else if (isspace(ch)) {
+            // Ignorar espaços, tabs e novas linhas
+            continue;
+        } else {
             sourceFile.putback(ch);
             break;
         }
@@ -79,7 +86,13 @@ Token Lexical::getNextToken() {
         else if (lexeme == "e") return Token(se, lexeme);
         else if (lexeme == "ou") return Token(sou, lexeme);
         else if (lexeme == "nao") return Token(snao, lexeme);
-        else return Token(sidentificador, lexeme); // Se não for palavra reservada, é identificador
+        else {
+            // Adicionar o identificador à tabela de símbolos
+            if (!symbolTable->isSymbolVisible(lexeme)) {
+                symbolTable->addSymbol(lexeme);
+            }
+            return Token(sidentificador, lexeme); // Se não for palavra reservada, é identificador
+        }
     }
 
     // Números *** falta lidar com valores float

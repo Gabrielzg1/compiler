@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include "../Token/Token.h"
+#include "../SymbolTable/SymbolTable.h"
 
 class Lexical {
 public:
@@ -13,19 +14,18 @@ public:
 
     void analyze();
     const std::vector<Token>& getTokens() const;
+    Token getNextToken();
 
 private:
     std::ifstream sourceFile;
     std::vector<Token> tokens;
 
     void consumeWhitespaceAndComments();
-    Token getNextToken();
     bool isLetter(char ch) const;
     bool isDigit(char ch) const;
 
 
-
-
+    SymbolTable *symbolTable;
 };
 
 #endif // LEXICAL_H
