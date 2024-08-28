@@ -13,6 +13,7 @@ int main() {
              std::cout << token.toString() << std::endl;
 
          }
+         lexer.displaySymbolTableStack();
 
     } catch (const std::exception& e) {
         std::cerr << "Erro: " << e.what() << std::endl;

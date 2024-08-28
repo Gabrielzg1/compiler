@@ -1,9 +1,9 @@
 #ifndef LEXICAL_H
 #define LEXICAL_H
 
-#include <vector>
 #include <string>
 #include <fstream>
+#include <vector>
 #include "../Token/Token.h"
 #include "../SymbolTable/SymbolTable.h"
 
@@ -11,21 +11,19 @@ class Lexical {
 public:
     Lexical(const std::string& filename);
     ~Lexical();
-
     void analyze();
     const std::vector<Token>& getTokens() const;
-    Token getNextToken();
+    void displaySymbolTableStack() const; // Adicionado para visualização da pilha
 
 private:
-    std::ifstream sourceFile;
-    std::vector<Token> tokens;
-
     void consumeWhitespaceAndComments();
+    Token getNextToken();
     bool isLetter(char ch) const;
     bool isDigit(char ch) const;
 
-
-    SymbolTable *symbolTable;
+    std::ifstream sourceFile;
+    std::vector<Token> tokens;
+    SymbolTable symbolTable;
 };
 
 #endif // LEXICAL_H
