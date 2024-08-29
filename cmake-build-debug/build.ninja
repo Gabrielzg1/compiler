@@ -55,6 +55,24 @@ build CMakeFiles/compiler.dir/main.cpp.o: CXX_COMPILER__compiler_unscanned_Debug
   OBJECT_DIR = CMakeFiles/compiler.dir
   OBJECT_FILE_DIR = CMakeFiles/compiler.dir
 
+build CMakeFiles/compiler.dir/Token/Token.cpp.o: CXX_COMPILER__compiler_unscanned_Debug /Users/gabrielguadagnini/Desktop/Oitavo-semestre/compiler/Token/Token.cpp || cmake_object_order_depends_target_compiler
+  DEP_FILE = CMakeFiles/compiler.dir/Token/Token.cpp.o.d
+  FLAGS = -g -std=gnu++17 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
+  OBJECT_DIR = CMakeFiles/compiler.dir
+  OBJECT_FILE_DIR = CMakeFiles/compiler.dir/Token
+
+build CMakeFiles/compiler.dir/Lexical/Lexical.cpp.o: CXX_COMPILER__compiler_unscanned_Debug /Users/gabrielguadagnini/Desktop/Oitavo-semestre/compiler/Lexical/Lexical.cpp || cmake_object_order_depends_target_compiler
+  DEP_FILE = CMakeFiles/compiler.dir/Lexical/Lexical.cpp.o.d
+  FLAGS = -g -std=gnu++17 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
+  OBJECT_DIR = CMakeFiles/compiler.dir
+  OBJECT_FILE_DIR = CMakeFiles/compiler.dir/Lexical
+
+build CMakeFiles/compiler.dir/SymbolTable/SymbolTable.cpp.o: CXX_COMPILER__compiler_unscanned_Debug /Users/gabrielguadagnini/Desktop/Oitavo-semestre/compiler/SymbolTable/SymbolTable.cpp || cmake_object_order_depends_target_compiler
+  DEP_FILE = CMakeFiles/compiler.dir/SymbolTable/SymbolTable.cpp.o.d
+  FLAGS = -g -std=gnu++17 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk -fcolor-diagnostics
+  OBJECT_DIR = CMakeFiles/compiler.dir
+  OBJECT_FILE_DIR = CMakeFiles/compiler.dir/SymbolTable
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target compiler
@@ -63,7 +81,7 @@ build CMakeFiles/compiler.dir/main.cpp.o: CXX_COMPILER__compiler_unscanned_Debug
 #############################################
 # Link the executable compiler
 
-build compiler: CXX_EXECUTABLE_LINKER__compiler_Debug CMakeFiles/compiler.dir/main.cpp.o
+build compiler: CXX_EXECUTABLE_LINKER__compiler_Debug CMakeFiles/compiler.dir/main.cpp.o CMakeFiles/compiler.dir/Token/Token.cpp.o CMakeFiles/compiler.dir/Lexical/Lexical.cpp.o CMakeFiles/compiler.dir/SymbolTable/SymbolTable.cpp.o
   FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.4.sdk
   OBJECT_DIR = CMakeFiles/compiler.dir
   POST_BUILD = :
