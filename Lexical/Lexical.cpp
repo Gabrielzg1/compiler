@@ -1,16 +1,14 @@
 #include "Lexical.h"
 #include <cctype>
-#include "../Token/Token.h"
-#include "../SymbolTable/SymbolTable.h"
+#include <iostream>
 
 // Construtor que abre o arquivo fonte
 Lexical::Lexical(const std::string& filename) {
-    symbolTable = new SymbolTable();
     sourceFile.open(filename);
     if (!sourceFile.is_open()) {
         throw std::runtime_error("Failed to open source file");
     }
-    symbolTable->enterScope(); // Entrar no escopo global
+    symbolTable.enterScope(); // Entrar no escopo global
 }
 
 // Destrutor que fecha o arquivo fonte
@@ -18,7 +16,6 @@ Lexical::~Lexical() {
     if (sourceFile.is_open()) {
         sourceFile.close();
     }
-    delete symbolTable;
 }
 
 // Função principal de análise
@@ -88,14 +85,14 @@ Token Lexical::getNextToken() {
         else if (lexeme == "nao") return Token(snao, lexeme);
         else {
             // Adicionar o identificador à tabela de símbolos
-            if (!symbolTable->isSymbolVisible(lexeme)) {
-                symbolTable->addSymbol(lexeme);
+            if (!symbolTable.getSymbolInfo(lexeme).has_value()) {
+                symbolTable.addSymbol(lexeme, "var", -1); // Tipo e endereço de memória fictícios
             }
             return Token(sidentificador, lexeme); // Se não for palavra reservada, é identificador
         }
     }
 
-    // Números *** falta lidar com valores float
+    // Números
     if (isDigit(ch)) {
         lexeme += ch;
         while (sourceFile.get(ch) && isDigit(ch)) {
@@ -155,7 +152,6 @@ Token Lexical::getNextToken() {
         case '-': return Token(smenos, lexeme);
         case '*': return Token(smult, lexeme);
         default:
-            // Qualquer outro símbolo desconhecido é tratado como um identificador
             if (isLetter(ch) || isDigit(ch) || ch == '_') {
                 return Token(sidentificador, lexeme);
             }
@@ -176,4 +172,10 @@ bool Lexical::isDigit(char ch) const {
 // Retorna a lista de tokens
 const std::vector<Token>& Lexical::getTokens() const {
     return tokens;
+}
+
+// Exibe o conteúdo da pilha da Tabela de Símbolos
+void Lexical::displaySymbolTableStack() const {
+    std::cout << "\nTabela de Simbolos (Pilha):\n";
+    symbolTable.displayStack();
 }

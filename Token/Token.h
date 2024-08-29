@@ -48,7 +48,7 @@ enum TokenType {
     TOKEN_UNKNOWN
 };
 
-class Token : public std::__1::error_code {
+class Token : public std::error_code {
 public:
     Token(TokenType type, const std::string& lexeme);
 
