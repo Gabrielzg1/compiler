@@ -2,6 +2,7 @@
 se contador > 10
 entao escreva (contador)
 senao escreva (x);
+teste
 
 
 

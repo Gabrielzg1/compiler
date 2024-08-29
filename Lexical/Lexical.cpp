@@ -48,7 +48,6 @@ void Lexical::consumeWhitespaceAndComments() {
 
 // Função que identifica e retorna o próximo token
 Token Lexical::getNextToken() {
-
     std::string lexeme;
     char ch;
 
@@ -56,11 +55,19 @@ Token Lexical::getNextToken() {
 
     // Identificadores e palavras-chave
     if (isLetter(ch)) {
+        // Verifica se o identificador começa com '_'
+        if (ch == '_') {
+            throw std::runtime_error("Identificadores nao podem começar com '_'. Identificador invalido.");
+        }
+
         lexeme += ch;
         while (sourceFile.get(ch) && (isLetter(ch) || isDigit(ch) || ch == '_')) {
+
             lexeme += ch;
         }
         sourceFile.putback(ch);
+
+
 
         // Verifica se o lexema é uma palavra reservada
         if (lexeme == "programa") return Token(sprograma, lexeme);
@@ -85,8 +92,7 @@ Token Lexical::getNextToken() {
         else if (lexeme == "ou") return Token(sou, lexeme);
         else if (lexeme == "nao") return Token(snao, lexeme);
         else {
-            // Adicionar o identificador à tabela de símbolo
-           // symbolTable.push(new SymbolInfo{lexeme, 0, "", 0});
+            // Adicionar o identificador à tabela de símbolos
             return Token(sidentificador, lexeme); // Se não for palavra reservada, é identificador
         }
     }
@@ -136,7 +142,7 @@ Token Lexical::getNextToken() {
             lexeme += ch;
             return Token(sdif, lexeme);
         }
-        return Token(TOKEN_UNKNOWN, lexeme);  // Possivelmente erro de sintaxe
+        throw std::runtime_error("Erro: Operador invalido '!'.");
     }
 
     // Operadores simples e pontuação
@@ -150,13 +156,13 @@ Token Lexical::getNextToken() {
         case '+': return Token(smais, lexeme);
         case '-': return Token(smenos, lexeme);
         case '*': return Token(smult, lexeme);
+        case '_': throw std::runtime_error("'_' utilizado de maneira incorreta.");
         default:
-            if (isLetter(ch) || isDigit(ch) || ch == '_') {
-                return Token(sidentificador, lexeme);
-            }
-            return Token(TOKEN_UNKNOWN, lexeme);
+            throw std::runtime_error("Simbolo desconhecido '" + lexeme + "'.");
+
     }
 }
+
 
 // Função que verifica se um caractere é uma letra
 bool Lexical::isLetter(char ch) const {
