@@ -22,7 +22,7 @@ private:
 
     std::ifstream sourceFile;
     std::vector<Token> tokens;
-    SymbolTable symbolTable;
+    //SymbolTable symbolTable;
 };
 
 #endif // LEXICAL_H

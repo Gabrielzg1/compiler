@@ -48,6 +48,7 @@ void Lexical::consumeWhitespaceAndComments() {
 
 // Função que identifica e retorna o próximo token
 Token Lexical::getNextToken() {
+
     std::string lexeme;
     char ch;
 
