@@ -2,30 +2,32 @@
 #define SYMBOL_TABLE_H
 
 #include <string>
-#include <unordered_map>
-#include <stack>
-#include <optional>
-#include <iostream>
+using namespace std;
 
 // Estrutura que armazena as informações do símbolo
 struct SymbolInfo {
-    std::string name;
+    string name;
     int scopeLevel;
-    std::string type;
+    string type;
     int memoryAddress;
+};
+
+// Estrutura do nó da pilha
+struct Node {
+    SymbolInfo* symbolInfo;
+    Node* next;
 };
 
 class SymbolTable {
 public:
-    void enterScope();
-    void leaveScope();
-    bool addSymbol(const std::string& name, const std::string& type, int memoryAddress);
-    std::optional<SymbolInfo> getSymbolInfo(const std::string& name) const;
-    void setTypeForVariables(const std::string& type);
-    void displayStack() const;
+    SymbolTable();
+    void push(SymbolInfo* symbolInfo);
+    void pop();
+    bool isEmpty() const;
+    SymbolInfo* peek() const;
 
 private:
-    std::stack<std::unordered_map<std::string, SymbolInfo>> table;
+    Node* top;  // Ponteiro para o topo da pilha
 };
 
 #endif // SYMBOL_TABLE_H

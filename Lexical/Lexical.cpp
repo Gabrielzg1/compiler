@@ -1,4 +1,5 @@
 #include "Lexical.h"
+#include "../SymbolTable/SymbolTable.h"
 #include <cctype>
 #include <iostream>
 
@@ -8,7 +9,6 @@ Lexical::Lexical(const std::string& filename) {
     if (!sourceFile.is_open()) {
         throw std::runtime_error("Failed to open source file");
     }
-    symbolTable.enterScope(); // Entrar no escopo global
 }
 
 // Destrutor que fecha o arquivo fonte
@@ -48,6 +48,7 @@ void Lexical::consumeWhitespaceAndComments() {
 
 // Função que identifica e retorna o próximo token
 Token Lexical::getNextToken() {
+
     std::string lexeme;
     char ch;
 
@@ -84,10 +85,8 @@ Token Lexical::getNextToken() {
         else if (lexeme == "ou") return Token(sou, lexeme);
         else if (lexeme == "nao") return Token(snao, lexeme);
         else {
-            // Adicionar o identificador à tabela de símbolos
-            if (!symbolTable.getSymbolInfo(lexeme).has_value()) {
-                symbolTable.addSymbol(lexeme, "var", -1); // Tipo e endereço de memória fictícios
-            }
+            // Adicionar o identificador à tabela de símbolo
+           // symbolTable.push(new SymbolInfo{lexeme, 0, "", 0});
             return Token(sidentificador, lexeme); // Se não for palavra reservada, é identificador
         }
     }
@@ -172,10 +171,4 @@ bool Lexical::isDigit(char ch) const {
 // Retorna a lista de tokens
 const std::vector<Token>& Lexical::getTokens() const {
     return tokens;
-}
-
-// Exibe o conteúdo da pilha da Tabela de Símbolos
-void Lexical::displaySymbolTableStack() const {
-    std::cout << "\nTabela de Simbolos (Pilha):\n";
-    symbolTable.displayStack();
 }

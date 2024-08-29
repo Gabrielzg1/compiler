@@ -13,17 +13,16 @@ public:
     ~Lexical();
     void analyze();
     const std::vector<Token>& getTokens() const;
-    void displaySymbolTableStack() const; // Adicionado para visualização da pilha
+    void consumeWhitespaceAndComments();
 
 private:
-    void consumeWhitespaceAndComments();
     Token getNextToken();
     bool isLetter(char ch) const;
     bool isDigit(char ch) const;
 
     std::ifstream sourceFile;
     std::vector<Token> tokens;
-    SymbolTable symbolTable;
+    //SymbolTable symbolTable;
 };
 
 #endif // LEXICAL_H
