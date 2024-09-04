@@ -3,10 +3,11 @@
 #include "Token/Token.h"
 
 using namespace std;
+
 int main() {
     try {
         Lexical lexer("code.txt");
-         lexer.analyze();
+        lexer.analyze();
 
          const auto& tokens = lexer.getTokens();
          for (const auto& token : tokens) {

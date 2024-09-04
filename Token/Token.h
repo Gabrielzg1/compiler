@@ -55,6 +55,7 @@ public:
     TokenType getType() const;
     std::string getLexeme() const;
     std::string toString() const;
+    std::string getTypeString() const;
 
 private:
     TokenType type;

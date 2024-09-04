@@ -9,6 +9,9 @@ Token::Token(TokenType type, const std::string& lexeme)
 TokenType Token::getType() const {
     return type;
 }
+std::string Token::getTypeString() const {
+    return tokenTypeToString(type);
+}
 
 // Retorna o lexema do token
 std::string Token::getLexeme() const {
