@@ -5,14 +5,13 @@ using namespace std;
 int main() {
     try {
         Lexical lexer("code.txt");
-        lexer.analyze();
-
-        const auto& tokens = lexer.getTokens();
-        for (const auto& token : tokens) {
-            std::cout << token.toString() << std::endl;
-
+        while(true){
+            Token token = lexer.getNextToken();
+            if(token.getLexeme() == "endfile"){
+                break;
+            }
+            cout << token.toString() << endl;
         }
-
     } catch (const std::exception& e) {
         std::cerr << "Erro: " << e.what() << std::endl;
         return 1;

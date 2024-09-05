@@ -45,6 +45,7 @@ enum TokenType {
     sdoispontos,
     sverdadeiro,
     sfalso,
+    endfile,
     TOKEN_UNKNOWN
 };
 

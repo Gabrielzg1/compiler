@@ -31,14 +31,23 @@ void Lexical::consumeWhitespaceAndComments() {
     char ch;
     while (sourceFile.get(ch)) {
         if (ch == '{') {
+            int openLine = this->line; // Armazena a linha onde o comentário foi aberto
+            bool closed = false; // Flag para verificar se o comentário foi fechado
             // Ignorar comentários entre '{' e '}'
-            while (sourceFile.get(ch) && ch != '}') {
-                if(ch == '\n') {
+            while (sourceFile.get(ch)) {
+                if (ch == '}') {
+                    closed = true;
+                    break;
+                }
+                if (ch == '\n') {
                     this->line++;
                 }
             }
+            if (!closed) {
+                std::cerr << "Erro: Comentário aberto na linha " << openLine << " não foi fechado." << std::endl;
+            }
         } else if (isspace(ch)) {
-            if(ch == '\n') {
+            if (ch == '\n') {
                 this->line++;
             }
             continue;
@@ -51,7 +60,10 @@ void Lexical::consumeWhitespaceAndComments() {
 
 // Função que identifica e retorna o próximo token
 Token Lexical::getNextToken() {
-    //consumeWhitespaceAndComments();
+    consumeWhitespaceAndComments();
+    if(sourceFile.peek() == EOF) {
+        return Token(endfile, "endfile");
+    }
     std::string lexeme;
     char ch;
 
