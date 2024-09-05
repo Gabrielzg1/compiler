@@ -9,11 +9,11 @@ int main() {
         Lexical lexer("code.txt");
         lexer.analyze();
 
-         const auto& tokens = lexer.getTokens();
-         for (const auto& token : tokens) {
-             std::cout << token.toString() << std::endl;
+        const auto& tokens = lexer.getTokens();
+        for (const auto& token : tokens) {
+            std::cout << token.toString() << std::endl;
 
-         }
+        }
 
     } catch (const std::exception& e) {
         std::cerr << "Erro: " << e.what() << std::endl;
