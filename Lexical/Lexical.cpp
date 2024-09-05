@@ -1,23 +1,21 @@
+// Lexical.cpp
 #include "Lexical.h"
 #include "../SymbolTable/SymbolTable.h"
 #include <cctype>
 #include <iostream>
-
 // Construtor que abre o arquivo fonte
-Lexical::Lexical(const std::string& filename) {
+Lexical::Lexical(const std::string& filename) { // Inicializa a linha como 1
     sourceFile.open(filename);
     if (!sourceFile.is_open()) {
         throw std::runtime_error("Failed to open source file");
     }
 }
-
 // Destrutor que fecha o arquivo fonte
 Lexical::~Lexical() {
     if (sourceFile.is_open()) {
         sourceFile.close();
     }
 }
-
 // Função principal de análise
 void Lexical::analyze() {
     while (sourceFile) {
@@ -28,16 +26,21 @@ void Lexical::analyze() {
         }
     }
 }
-
 // Função para consumir espaços e comentários
 void Lexical::consumeWhitespaceAndComments() {
     char ch;
     while (sourceFile.get(ch)) {
         if (ch == '{') {
             // Ignorar comentários entre '{' e '}'
-            while (sourceFile.get(ch) && ch != '}') {}
+            while (sourceFile.get(ch) && ch != '}') {
+                if(ch == '\n') {
+                    this->line++;
+                }
+            }
         } else if (isspace(ch)) {
-            // Ignorar espaços, tabs e novas linhas
+            if(ch == '\n') {
+                this->line++;
+            }
             continue;
         } else {
             sourceFile.putback(ch);
@@ -48,20 +51,22 @@ void Lexical::consumeWhitespaceAndComments() {
 
 // Função que identifica e retorna o próximo token
 Token Lexical::getNextToken() {
-
+    //consumeWhitespaceAndComments();
     std::string lexeme;
     char ch;
 
     sourceFile.get(ch);
-
     // Identificadores e palavras-chave
     if (isLetter(ch)) {
+        // Verifica se o identificador começa com '_'
+        if (ch == '_') {
+            throw std::runtime_error("Identificadores nao podem começar com '_'. Identificador invalido. Linha: " + std::to_string(line));
+        }
         lexeme += ch;
         while (sourceFile.get(ch) && (isLetter(ch) || isDigit(ch) || ch == '_')) {
             lexeme += ch;
         }
         sourceFile.putback(ch);
-
         // Verifica se o lexema é uma palavra reservada
         if (lexeme == "programa") return Token(sprograma, lexeme);
         else if (lexeme == "se") return Token(sse, lexeme);
@@ -85,12 +90,10 @@ Token Lexical::getNextToken() {
         else if (lexeme == "ou") return Token(sou, lexeme);
         else if (lexeme == "nao") return Token(snao, lexeme);
         else {
-            // Adicionar o identificador à tabela de símbolo
-           // symbolTable.push(new SymbolInfo{lexeme, 0, "", 0});
+            // Adicionar o identificador à tabela de símbolos
             return Token(sidentificador, lexeme); // Se não for palavra reservada, é identificador
         }
     }
-
     // Números
     if (isDigit(ch)) {
         lexeme += ch;
@@ -100,7 +103,6 @@ Token Lexical::getNextToken() {
         sourceFile.putback(ch);
         return Token(snumero, lexeme);
     }
-
     // Operadores compostos
     if (ch == ':') {
         lexeme += ch;
@@ -136,9 +138,8 @@ Token Lexical::getNextToken() {
             lexeme += ch;
             return Token(sdif, lexeme);
         }
-        return Token(TOKEN_UNKNOWN, lexeme);  // Possivelmente erro de sintaxe
+        throw std::runtime_error("Erro: Operador invalido '!'. Linha: " + std::to_string(line));
     }
-
     // Operadores simples e pontuação
     lexeme += ch;
     switch (ch) {
@@ -150,25 +151,23 @@ Token Lexical::getNextToken() {
         case '+': return Token(smais, lexeme);
         case '-': return Token(smenos, lexeme);
         case '*': return Token(smult, lexeme);
+        case '_': throw std::runtime_error("'_' utilizado de maneira incorreta. Linha: " + std::to_string(line));
         default:
-            if (isLetter(ch) || isDigit(ch) || ch == '_') {
-                return Token(sidentificador, lexeme);
-            }
-            return Token(TOKEN_UNKNOWN, lexeme);
+            throw std::runtime_error("Simbolo desconhecido '" + lexeme + "'. Linha: " + std::to_string(line));
     }
 }
-
 // Função que verifica se um caractere é uma letra
 bool Lexical::isLetter(char ch) const {
     return std::isalpha(static_cast<unsigned char>(ch));
 }
-
 // Função que verifica se um caractere é um dígito
 bool Lexical::isDigit(char ch) const {
     return std::isdigit(static_cast<unsigned char>(ch));
 }
-
 // Retorna a lista de tokens
 const std::vector<Token>& Lexical::getTokens() const {
     return tokens;
+}
+int Lexical::getCurrentLine() const {
+    return line;
 }
