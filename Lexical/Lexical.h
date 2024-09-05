@@ -13,16 +13,18 @@ public:
     ~Lexical();
     void analyze();
     const std::vector<Token>& getTokens() const;
-    void consumeWhitespaceAndComments();
-    int line = 1;
+    int getCurrentLine() const;
+    Token getNextToken();
+
 
 private:
-    Token getNextToken();
+    void consumeWhitespaceAndComments();
     bool isLetter(char ch) const;
     bool isDigit(char ch) const;
     std::ifstream sourceFile;
     std::vector<Token> tokens;
-    //SymbolTable symbolTable;
+    int line = 1;
+
 };
 
 #endif // LEXICAL_H

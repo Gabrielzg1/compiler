@@ -36,7 +36,11 @@ void Lexical::consumeWhitespaceAndComments() {
     while (sourceFile.get(ch)) {
         if (ch == '{') {
             // Ignorar comentários entre '{' e '}'
-            while (sourceFile.get(ch) && ch != '}') {}
+            while (sourceFile.get(ch) && ch != '}') {
+                if(ch == '\n') {
+                    this->line++;
+                }
+            }
         } else if (isspace(ch)) {
             if(ch == '\n') {
                 this->line++;
@@ -51,6 +55,7 @@ void Lexical::consumeWhitespaceAndComments() {
 
 // Função que identifica e retorna o próximo token
 Token Lexical::getNextToken() {
+    //consumeWhitespaceAndComments();
     std::string lexeme;
     char ch;
 
@@ -176,3 +181,7 @@ bool Lexical::isDigit(char ch) const {
 const std::vector<Token>& Lexical::getTokens() const {
     return tokens;
 }
+int Lexical::getCurrentLine() const {
+    return line;
+}
+
