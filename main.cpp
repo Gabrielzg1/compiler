@@ -2,6 +2,7 @@
 #include "Lexical/Lexical.h"
 #include "Token/Token.h"
 using namespace std;
+
 int main() {
     try {
         Lexical lexer("code.txt");

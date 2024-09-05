@@ -1,11 +1,12 @@
-
-se contador > 10
-entao escreva (contador)
-senao escreva (x);
-
-
-
 {
+se conador > 10
+ entao escreva (contador)
+ senao escreva (x);
+ teste
+
+}
+
+
 programa test;
 var v: inteiro;
 i,max, juro: inteiro;
@@ -27,4 +28,3 @@ fim;
 escreva(valor)
 fim
 fim.
-}
