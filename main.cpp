@@ -15,11 +15,6 @@ int main() {
 
         }
 
-        /*for(int i = 0; i < 16; i++) {
-            cout << lexer.getCurrentLine() << endl;
-            cout << lexer.getNextToken().getTypeString() << endl;
-        }*/
-
     } catch (const std::exception& e) {
         std::cerr << "Erro: " << e.what() << std::endl;
         return 1;

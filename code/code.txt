@@ -3,14 +3,14 @@ se conador > 10
  entao escreva (contador)
  senao escreva (x);
  teste
-}
 
+}
 
 
 programa test;
 var v: inteiro;
 i,max, juro: inteiro;
-inicio#
+inicio
 enquanto v != -1
 faca
 inicio
