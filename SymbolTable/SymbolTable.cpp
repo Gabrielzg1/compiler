@@ -26,6 +26,15 @@ void SymbolTable::pop() {
         delete temp;
     }
 }
+void SymbolTable::assignTypeToVariables(const std::string& newType) {
+    Node* current = top;
+    while (current != nullptr) {
+        if (current->symbolInfo->type == "var") {
+            current->symbolInfo->type = newType;
+        }
+        current = current->next;
+    }
+}
 
 // Verifica se a pilha está vazia
 bool SymbolTable::isEmpty() const {

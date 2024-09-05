@@ -4,24 +4,20 @@
 using namespace std;
 int main() {
     try {
-        /*Lexical lexer("code.txt");
+        Lexical lexer("code.txt");
+        SymbolTable* symboltable = new SymbolTable();
         while(true){
             Token token = lexer.getNextToken();
+            if(token.getTypeString(token) == "sidentificador"){
+                symboltable->push(token.getLexeme(), 0, "var", 0);
+
+            }
             if(token.getLexeme() == "endfile"){
                 break;
             }
             cout << token.toString() << endl;
-        }*/
-
-        SymbolTable* symboltable = new SymbolTable();
-
-
-        symboltable->push("Main", 0, "int", 0);
-
+        }
         cout << symboltable->peek()->name << endl;
-        cout << symboltable->peek()->type << endl;
-
-        cout << symboltable->contains("teste");
 
 
 

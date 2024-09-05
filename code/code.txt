@@ -1,11 +1,11 @@
-
+{
 se contador > 10
 entao escreva (contador)
 senao escreva (x);
 
+}
 
 
-{
 programa test;
 var v: inteiro;
 i,max, juro: inteiro;
@@ -13,7 +13,7 @@ inicio
 enquanto v != -1
 faca
 inicio
-
+{ teste }
 leia(v);
 leia(juro);
 leia(max);
@@ -24,7 +24,7 @@ faca inicio
 valor:= valor*(1+juro);
 i:= i+1
 fim;
+{ teste }
 escreva(valor)
 fim
-fim.
-}
+fim

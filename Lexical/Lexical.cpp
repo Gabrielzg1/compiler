@@ -35,6 +35,9 @@ void Lexical::consumeWhitespaceAndComments() {
             bool closed = false; // Flag para verificar se o comentário foi fechado
             // Ignorar comentários entre '{' e '}'
             while (sourceFile.get(ch)) {
+                if (ch == '{') {
+                    std::cerr << "Erro: Comentário aberto na linha " << openLine << " não foi fechado." << std::endl;
+                }
                 if (ch == '}') {
                     closed = true;
                     break;
