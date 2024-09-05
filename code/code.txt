@@ -1,5 +1,5 @@
 
-se con?ador > 10
+se conador > 10
 entao escreva (contador)
 senao escreva (x);
 teste

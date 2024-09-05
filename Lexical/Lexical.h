@@ -14,12 +14,12 @@ public:
     void analyze();
     const std::vector<Token>& getTokens() const;
     void consumeWhitespaceAndComments();
+    int line = 1;
 
 private:
     Token getNextToken();
     bool isLetter(char ch) const;
     bool isDigit(char ch) const;
-
     std::ifstream sourceFile;
     std::vector<Token> tokens;
     //SymbolTable symbolTable;

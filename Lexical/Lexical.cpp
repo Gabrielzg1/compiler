@@ -1,10 +1,11 @@
+// Lexical.cpp
 #include "Lexical.h"
 #include "../SymbolTable/SymbolTable.h"
 #include <cctype>
 #include <iostream>
 
 // Construtor que abre o arquivo fonte
-Lexical::Lexical(const std::string& filename) {
+Lexical::Lexical(const std::string& filename) { // Inicializa a linha como 1
     sourceFile.open(filename);
     if (!sourceFile.is_open()) {
         throw std::runtime_error("Failed to open source file");
@@ -37,7 +38,9 @@ void Lexical::consumeWhitespaceAndComments() {
             // Ignorar comentários entre '{' e '}'
             while (sourceFile.get(ch) && ch != '}') {}
         } else if (isspace(ch)) {
-            // Ignorar espaços, tabs e novas linhas
+            if(ch == '\n') {
+                this->line++;
+            }
             continue;
         } else {
             sourceFile.putback(ch);
@@ -57,17 +60,14 @@ Token Lexical::getNextToken() {
     if (isLetter(ch)) {
         // Verifica se o identificador começa com '_'
         if (ch == '_') {
-            throw std::runtime_error("Identificadores nao podem começar com '_'. Identificador invalido.");
+            throw std::runtime_error("Identificadores nao podem começar com '_'. Identificador invalido. Linha: " + std::to_string(line));
         }
 
         lexeme += ch;
         while (sourceFile.get(ch) && (isLetter(ch) || isDigit(ch) || ch == '_')) {
-
             lexeme += ch;
         }
         sourceFile.putback(ch);
-
-
 
         // Verifica se o lexema é uma palavra reservada
         if (lexeme == "programa") return Token(sprograma, lexeme);
@@ -142,7 +142,7 @@ Token Lexical::getNextToken() {
             lexeme += ch;
             return Token(sdif, lexeme);
         }
-        throw std::runtime_error("Erro: Operador invalido '!'.");
+        throw std::runtime_error("Erro: Operador invalido '!'. Linha: " + std::to_string(line));
     }
 
     // Operadores simples e pontuação
@@ -156,13 +156,11 @@ Token Lexical::getNextToken() {
         case '+': return Token(smais, lexeme);
         case '-': return Token(smenos, lexeme);
         case '*': return Token(smult, lexeme);
-        case '_': throw std::runtime_error("'_' utilizado de maneira incorreta.");
+        case '_': throw std::runtime_error("'_' utilizado de maneira incorreta. Linha: " + std::to_string(line));
         default:
-            throw std::runtime_error("Simbolo desconhecido '" + lexeme + "'.");
-
+            throw std::runtime_error("Simbolo desconhecido '" + lexeme + "'. Linha: " + std::to_string(line));
     }
 }
-
 
 // Função que verifica se um caractere é uma letra
 bool Lexical::isLetter(char ch) const {
