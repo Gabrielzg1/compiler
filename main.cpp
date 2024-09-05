@@ -5,13 +5,21 @@ using namespace std;
 int main() {
     try {
         Lexical lexer("code.txt");
-        lexer.analyze();
+        SymbolTable* symboltable = new SymbolTable();
+        while(true){
+            Token token = lexer.getNextToken();
+            if(token.getTypeString(token) == "sidentificador"){
+                symboltable->push(token.getLexeme(), 0, "var", 0);
 
-        const auto& tokens = lexer.getTokens();
-        for (const auto& token : tokens) {
-            std::cout << token.toString() << std::endl;
-
+            }
+            if(token.getLexeme() == "endfile"){
+                break;
+            }
+            cout << token.toString() << endl;
         }
+        cout << symboltable->peek()->name << endl;
+
+
 
     } catch (const std::exception& e) {
         std::cerr << "Erro: " << e.what() << std::endl;

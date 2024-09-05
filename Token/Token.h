@@ -45,6 +45,7 @@ enum TokenType {
     sdoispontos,
     sverdadeiro,
     sfalso,
+    endfile,
     TOKEN_UNKNOWN
 };
 
@@ -55,12 +56,15 @@ public:
     TokenType getType() const;
     std::string getLexeme() const;
     std::string toString() const;
+    std::string getTypeString(Token token) const;
+
 
 private:
     TokenType type;
     std::string lexeme;
 
     std::string tokenTypeToString(TokenType type) const;
+
 };
 
 // Função para criar um Token com base em um lexema

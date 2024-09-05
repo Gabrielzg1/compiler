@@ -21,10 +21,13 @@ struct Node {
 class SymbolTable {
 public:
     SymbolTable();
-    void push(SymbolInfo* symbolInfo);
+    void push( string name, int scopeLevel, string type, int memoryAddress);
     void pop();
     bool isEmpty() const;
     SymbolInfo* peek() const;
+    bool contains(std::string name);
+    void assignTypeToVariables(const std::string& newType);
+
 
 private:
     Node* top;  // Ponteiro para o topo da pilha
