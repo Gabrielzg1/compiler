@@ -1,6 +1,6 @@
 #include "SymbolTable.h"
 
-// Construtor da classe SymbolTable
+// Construtor da classe SymbolTableTest
 SymbolTable::SymbolTable() : top(nullptr) {}
 
 // Adiciona um novo símbolo no topo da pilha
