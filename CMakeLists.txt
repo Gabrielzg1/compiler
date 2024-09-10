@@ -13,6 +13,7 @@ add_executable(compiler
         Lexical/Lexical.h
         SymbolTable/SymbolTable.cpp
         SymbolTable/SymbolTable.h
+        Tests/LexicalTest/LexicalTest.cpp
 )
 
 # Test executable
@@ -22,4 +23,10 @@ add_executable(test_symbol_table
         SymbolTable/SymbolTable.h
 )
 
-add_test(NAME SymbolTable COMMAND test_symbol_table)
+add_executable(
+        lexical_test Tests/LexicalTest/LexicalTest.cpp
+        Lexical/Lexical.cpp
+        Lexical/Lexical.h
+        Token/Token.cpp
+        Token/Token.h
+)
