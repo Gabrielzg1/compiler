@@ -49,22 +49,20 @@ enum TokenType {
     TOKEN_UNKNOWN
 };
 
-class Token : public std::error_code {
+class Token {
 public:
     Token(TokenType type, const std::string& lexeme);
 
     TokenType getType() const;
     std::string getLexeme() const;
     std::string toString() const;
-    std::string getTypeString(Token token) const;
-
+    std::string getTypeString() const;
 
 private:
     TokenType type;
     std::string lexeme;
 
     std::string tokenTypeToString(TokenType type) const;
-
 };
 
 // Função para criar um Token com base em um lexema
