@@ -4,29 +4,36 @@ enable_testing()
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Define a library with common code
+add_library(common_lib
+        Token/Token.cpp
+        Lexical/Lexical.cpp
+        SymbolTable/SymbolTable.cpp
+)
+
+target_include_directories(common_lib PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/Token
+        ${CMAKE_CURRENT_SOURCE_DIR}/Lexical
+        ${CMAKE_CURRENT_SOURCE_DIR}/SymbolTable
+)
+
 # Main application executable
 add_executable(compiler
         main.cpp
-        Token/Token.cpp
-        Token/Token.h
-        Lexical/Lexical.cpp
-        Lexical/Lexical.h
-        SymbolTable/SymbolTable.cpp
-        SymbolTable/SymbolTable.h
+        # Note: Do not include test files here
+)
+
+# Test executable for SymbolTable
+add_executable(test_symbol_table
+        Tests/SymbolTableTest/SymbolTableTest.cpp
+)
+
+# Test executable for Lexical
+add_executable(lexical_test
         Tests/LexicalTest/LexicalTest.cpp
 )
 
-# Test executable
-add_executable(test_symbol_table
-        Tests/SymbolTableTest/SymbolTableTest.cpp
-        SymbolTable/SymbolTable.cpp
-        SymbolTable/SymbolTable.h
-)
-
-add_executable(
-        lexical_test Tests/LexicalTest/LexicalTest.cpp
-        Lexical/Lexical.cpp
-        Lexical/Lexical.h
-        Token/Token.cpp
-        Token/Token.h
-)
+# Link the common library to the executables
+target_link_libraries(compiler common_lib)
+target_link_libraries(test_symbol_table common_lib)
+target_link_libraries(lexical_test common_lib)
