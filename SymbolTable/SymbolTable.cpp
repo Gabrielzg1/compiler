@@ -1,6 +1,6 @@
 #include "SymbolTable.h"
-
-// Construtor da classe SymbolTable
+#include <iostream>
+// Construtor da classe SymbolTableTest
 SymbolTable::SymbolTable() : top(nullptr) {}
 
 // Adiciona um novo símbolo no topo da pilha
@@ -59,4 +59,16 @@ bool SymbolTable::contains(std::string name){
         aux = aux->next;
     }
     return false;
+}
+
+void SymbolTable::printStack() const {
+    Node* current = top;
+    while (current != nullptr) {
+        std::cout << "Name: " << current->symbolInfo->name
+                  << ", Scope Level: " << current->symbolInfo->scopeLevel
+                  << ", Type: " << current->symbolInfo->type
+                  << ", Memory Address: " << current->symbolInfo->memoryAddress
+                  << std::endl;
+        current = current->next;
+    }
 }

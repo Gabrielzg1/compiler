@@ -27,10 +27,12 @@ public:
     SymbolInfo* peek() const;
     bool contains(std::string name);
     void assignTypeToVariables(const std::string& newType);
+    void printStack() const;
 
 
 private:
     Node* top;  // Ponteiro para o topo da pilha
+
 };
 
 #endif // SYMBOL_TABLE_H
