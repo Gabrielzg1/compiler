@@ -10,9 +10,9 @@ TokenType Token::getType() const {
     return type;
 }
 
-// Converte o token em string para facilitar a depuração
-std::string Token::getTypeString(Token token) const {
-    return tokenTypeToString(token.getType());
+// Converte o tipo do token em string para facilitar a depuração
+std::string Token::getTypeString() const {
+    return tokenTypeToString(type);
 }
 
 // Retorna o lexema do token
