@@ -13,8 +13,6 @@ public:
     const std::vector<Token>& getTokens() const;
     int getCurrentLine() const;
     Token getNextToken();
-    bool endFile = false;
-
 
 private:
     void consumeWhitespaceAndComments();
