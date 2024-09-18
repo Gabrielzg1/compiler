@@ -166,6 +166,7 @@ Token Lexical::getNextToken() {
         case '+': return Token(smais, lexeme);
         case '-': return Token(smenos, lexeme);
         case '*': return Token(smult, lexeme);
+        case '=': return Token(sig, lexeme);
         case '_': throw std::runtime_error("'_' utilizado de maneira incorreta. Linha: " + std::to_string(line));
         default:
             throw std::runtime_error("Simbolo desconhecido '" + lexeme + "'. Linha: " + std::to_string(line));
