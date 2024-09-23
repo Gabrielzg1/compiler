@@ -8,9 +8,281 @@ Lexical lexer("code.txt");
 SymbolTable* symboltable = new SymbolTable();
 Token token = lexer.getNextToken();
 
+void getNextToken();
+void analysisFunction();
+void analysisProcedure();
+void analysisSubroutine();
+void typeAnalysis();
+void variablesAnalysis();
+void variablesDeclarationAnalysis();
+void blockAnalysis();
+void commandsAnalysis();
+void simpleCommand();
+void atrib_chproc();
+void ifAnalysis();
+void whileAnalysis();
+void readAnalysis();
+void writeAnalysis();
+void atribAnalysis();
+void functionCallAnalysis();
+void expressionAnalysis();
+void termAnalysis();
+void factorAnalysis();
+void procedureCallAnalysis();
+void simpleExpressionAnalysis();
+
 void getNextToken() {
+    cout << token.getTypeString() << endl;
     token = lexer.getNextToken();
+
 }
+
+
+
+void simpleExpressionAnalysis(){
+    if(token.getTypeString() == "smais" || token.getTypeString() == "smenos"){
+        getNextToken();
+    }
+    termAnalysis();
+    while(token.getTypeString() == "smais" || token.getTypeString() == "smenos" || token.getTypeString() == "sou"){
+        getNextToken();
+        termAnalysis();
+    }
+}
+
+void functionCallAnalysis() {
+
+}
+void procedureCallAnalysis(){
+
+}
+
+
+void atribAnalysis(){
+    getNextToken();
+    expressionAnalysis();
+}
+
+
+void factorAnalysis() {
+    if(token.getTypeString() == "sidentificador") {
+        functionCallAnalysis();
+    } else if (token.getTypeString() == "snumero") {
+        getNextToken();
+    } else if (token.getTypeString() == "snao") {
+        getNextToken();
+        factorAnalysis();
+    } else if (token.getTypeString() == "sabre_parenteses") {
+        getNextToken();
+        expressionAnalysis();
+        if(token.getTypeString() == "sfecha_parenteses") {
+            getNextToken();
+        } else {
+            throw std::runtime_error("Erro de Sintaxe! Espera-se ')' na linha: " + std::to_string(lexer.getCurrentLine()));
+        }
+    } else if (token.getTypeString() == "sverdadeiro" || token.getTypeString() == "sfalso") {
+        getNextToken();
+    }
+    else {
+        throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador', 'numero', 'nao' ou '(' na linha: " + std::to_string(lexer.getCurrentLine()));
+    }
+
+}
+
+void termAnalysis() {
+    factorAnalysis();
+    while(token.getTypeString() == "smult" || token.getTypeString() == "sdiv" || token.getTypeString() == "se") {
+        getNextToken();
+        factorAnalysis();
+    }
+}
+
+void expressionAnalysis() {
+    simpleExpressionAnalysis();
+    if(token.getTypeString() == "smaior" || token.getTypeString() == "smaiorig" ||
+        token.getTypeString() == "sig" || token.getTypeString() == "smenor" ||
+        token.getTypeString() == "smenorig" || token.getTypeString() == "sdif") {
+        getNextToken();
+        simpleExpressionAnalysis();
+    }
+
+
+}
+void readAnalysis(){
+    getNextToken();
+    if(token.getTypeString() == "sabre_parenteses"){
+        getNextToken();
+        if(token.getTypeString() == "sidentificador"){
+            getNextToken();
+            if(token.getTypeString() == "sfecha_parenteses"){
+                getNextToken();
+            } else {
+                throw std::runtime_error("Erro de Sintaxe! Espera-se ')' na linha: " + std::to_string(lexer.getCurrentLine()));
+            }
+        } else
+            throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
+    } else
+        throw std::runtime_error("Erro de Sintaxe! Espera-se '(' na linha: " + std::to_string(lexer.getCurrentLine()));
+}
+void writeAnalysis(){
+    getNextToken();
+    if(token.getTypeString() == "sabre_parenteses"){
+        getNextToken();
+        if(token.getTypeString() == "sidentificador"){
+            getNextToken();
+            if(token.getTypeString() == "sfecha_parenteses"){
+                getNextToken();
+            } else {
+                throw std::runtime_error("Erro de Sintaxe! Espera-se ')' na linha: " + std::to_string(lexer.getCurrentLine()));
+            }
+        } else
+            throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
+    } else
+        throw std::runtime_error("Erro de Sintaxe! Espera-se '(' na linha: " + std::to_string(lexer.getCurrentLine()));
+}
+
+void atrib_chproc() {
+    getNextToken();
+
+    if(token.getTypeString() == "satribuicao")
+        atribAnalysis();
+    else
+        procedureCallAnalysis();
+}
+
+void ifAnalysis(){
+    getNextToken();
+
+    expressionAnalysis();
+    if(token.getTypeString() == "sentao"){
+
+        getNextToken();
+        simpleCommand();
+        if(token.getTypeString() == "ssenao"){
+            getNextToken();
+            simpleCommand();
+        }
+    } else {
+        throw std::runtime_error("Erro de Sintaxe! Espera-se 'entao' na linha: " + std::to_string(lexer.getCurrentLine()));
+    }
+}
+
+
+void whileAnalysis(){
+    getNextToken();
+    expressionAnalysis();
+    if(token.getTypeString() == "sfaca"){
+        getNextToken();
+        simpleCommand();
+    } else {
+        throw std::runtime_error("Erro de Sintaxe! Espera-se 'faca' na linha: " + std::to_string(lexer.getCurrentLine()));
+    }
+
+}
+
+
+
+
+void simpleCommand(){
+    if(token.getTypeString() == "sidentificador"){
+        atrib_chproc();
+    } else if (token.getTypeString() == "sse"){
+        ifAnalysis();
+    } else if (token.getTypeString() == "senquanto"){
+        whileAnalysis();
+    } else if (token.getTypeString() == "sleia") {
+        readAnalysis();
+    } else if (token.getTypeString() == "sescreva") {
+        writeAnalysis();
+    } else {
+       commandsAnalysis();
+    }
+
+}
+
+void commandsAnalysis() {
+    if (token.getTypeString() == "sinicio") {
+        getNextToken();
+        simpleCommand();
+        while (token.getTypeString() != "sfim") {
+            if (token.getTypeString() == "sponto_virgula") {
+                getNextToken();
+                if (token.getTypeString() != "sfim") {
+                    simpleCommand();
+                }
+            } else {
+                throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
+            }
+        }
+        getNextToken();
+    } else {
+        throw std::runtime_error("Erro de Sintaxe! Espera-se 'inicio' na linha: " + std::to_string(lexer.getCurrentLine()));
+    }
+}
+
+
+void analysisFunction() {
+    getNextToken();
+    if (token.getTypeString() == "sidentificador") {
+        getNextToken();
+        if(token.getTypeString() == "sdoispontos"){
+            getNextToken();
+            if(token.getTypeString() == "sinteiro" || token.getTypeString() == "sbooleano"){
+                getNextToken();
+                if(token.getTypeString() == "sponto_virgula"){
+                    blockAnalysis();
+                } else {
+                    throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
+                }
+            } else {
+                throw std::runtime_error("Erro de Sintaxe! Tipo invalido na linha: " + std::to_string(lexer.getCurrentLine()));
+            }
+            if(token.getTypeString() == "sponto_virgula"){
+                blockAnalysis();
+            } else {
+                throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
+            }
+        } else {
+            throw std::runtime_error("Erro de Sintaxe! Espera-se ':' na linha: " + std::to_string(lexer.getCurrentLine()));
+        }
+    } else {
+        throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
+    }
+}
+
+void analysisProcedure() {
+    getNextToken();
+
+    if (token.getTypeString() == "sidentificador") {
+        getNextToken();
+        if(token.getTypeString() == "sponto_virgula"){
+            blockAnalysis();
+        } else {
+            throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
+        }
+    } else {
+        throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
+    }
+}
+
+
+void analysisSubroutine() {
+    while (token.getTypeString() == "sprocedimento" || token.getTypeString() == "sfuncao") {
+        if (token.getTypeString() == "sprocedimento") {
+            analysisProcedure();
+        } else {
+            analysisFunction();
+        }
+
+          if (token.getTypeString() == "sponto_virgula") {
+            getNextToken();
+        } else {
+            throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
+        }
+
+    }
+}
+
 
 void typeAnalysis(){
     if(token.getTypeString() != "sinteiro" && token.getTypeString() != "sbooleano"){
@@ -58,7 +330,6 @@ void variablesAnalysis() {
 
 
 void variablesDeclarationAnalysis() {
-    getNextToken();
     if(token.getTypeString() == "svar"){
         getNextToken();
         if (token.getTypeString() == "sidentificador") {
@@ -81,11 +352,14 @@ void variablesDeclarationAnalysis() {
 }
 
 void blockAnalysis() {
+    getNextToken();
     // Analisa declarações de variáveis
     variablesDeclarationAnalysis();
-    // Analisa subrotinas (não implementado aqui)
+    // Analisa subrotinas
+    analysisSubroutine();
+    // Analisa comandos
+    commandsAnalysis();
 
-    // Analisa comandos (não implementado aqui)
 }
 
 int main() {
@@ -96,18 +370,15 @@ int main() {
             getNextToken();
             if(token.getTypeString() == "sponto_virgula"){
                 blockAnalysis();
-                /* getNextToken();
                  if(token.getTypeString() == "sponto"){
-                    getNextToken();
-                    if(token.getTypeString() == "TOKEN_UNKNOWN"){
+                     getNextToken();
+                     if(token.getTypeString() == "endfile"){
                         cout << "Compilado com sucesso!" << endl;
-                    } else
-                        throw std::runtime_error("ERROR, ERROR, ERROR" + std::to_string(lexer.getCurrentLine()));
+                     } else
+                        throw std::runtime_error("ERRO sintatico: " + std::to_string(lexer.getCurrentLine()));
                 } else {
                     throw std::runtime_error("Sintax Error! Espera-se '.' na linha: " + std::to_string(lexer.getCurrentLine()));
                 }
-                 */
-                cout << "Compilado com sucesso!" << endl;
             } else {
                 throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
             }
