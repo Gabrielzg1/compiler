@@ -1,8 +1,6 @@
-
-% teste 3%
 programa leitura;
 var x,r:booleano;
-    a,b:booleano;
+    a,b:inteiro;
 procedimento ver;
 var i: inteiro;
 inicio
