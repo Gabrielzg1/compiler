@@ -1,8 +1,10 @@
-programa teste2;
-var x,y,z,a,t: inteiro;
-inicio
 
-  se (10 <= 5) ou (10>=5)
-  entao {teste}
-       x:= 1;
+
+programa leitura;
+
+
+inicio
+  x:= verdadeiro;
+  y:= falso;
+  ver;
 fim.
