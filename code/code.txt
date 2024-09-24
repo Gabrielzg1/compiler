@@ -1,10 +1,13 @@
+programa teste;
 
-
-programa leitura;
-
+funcao soma:inteiro;
+inicio
+  soma:= x+y;
+fim
 
 inicio
-  x:= verdadeiro;
-  y:= falso;
-  ver;
+  leia(x);
+  leia(y);
+  total:= soma;
+  escreva(total)
 fim.

@@ -66,6 +66,7 @@ void atribAnalysis(){
 
 void factorAnalysis() {
     if(token.getTypeString() == "sidentificador") {
+        cout << "entrou --------" << endl;
         functionCallAnalysis();
     } else if (token.getTypeString() == "snumero") {
         getNextToken();
@@ -239,12 +240,15 @@ void analysisFunction() {
             } else {
                 throw std::runtime_error("Erro de Sintaxe! Tipo invalido na linha: " + std::to_string(lexer.getCurrentLine()));
             }
-            if(token.getTypeString() == "sponto_virgula"){
+
+            // Ver com o freitas
+
+            /*if(token.getTypeString() == "sponto_virgula"){
                 blockAnalysis();
             } else {
                 cout << 3 << endl;
                 throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
-            }
+            } */
         } else {
             throw std::runtime_error("Erro de Sintaxe! Espera-se ':' na linha: " + std::to_string(lexer.getCurrentLine()));
         }
@@ -278,9 +282,10 @@ void analysisSubroutine() {
         }
         // Rever esse trecho com o freitas
 
-        /*   if (token.getTypeString() == "sponto_virgula") {
+         /*  if (token.getTypeString() == "sponto_virgula") {
             getNextToken();
         } else {
+               cout << 5 << endl;
             throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
         }
 */
