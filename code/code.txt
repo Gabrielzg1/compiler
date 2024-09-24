@@ -2,12 +2,12 @@ programa teste;
 
 funcao soma:inteiro;
 inicio
-  soma:= x+y;
-fim
+  soma := x+y;
+fim;
 
 inicio
   leia(x);
   leia(y);
   total:= soma;
-  escreva(total)
+  escreva(total);
 fim.

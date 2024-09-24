@@ -66,7 +66,6 @@ void atribAnalysis(){
 
 void factorAnalysis() {
     if(token.getTypeString() == "sidentificador") {
-        cout << "entrou --------" << endl;
         functionCallAnalysis();
     } else if (token.getTypeString() == "snumero") {
         getNextToken();
@@ -233,22 +232,11 @@ void analysisFunction() {
                 getNextToken();
                 if(token.getTypeString() == "sponto_virgula"){
                     blockAnalysis();
-                } else {
-                    cout << 2 << endl;
-                    throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
                 }
             } else {
                 throw std::runtime_error("Erro de Sintaxe! Tipo invalido na linha: " + std::to_string(lexer.getCurrentLine()));
             }
 
-            // Ver com o freitas
-
-            /*if(token.getTypeString() == "sponto_virgula"){
-                blockAnalysis();
-            } else {
-                cout << 3 << endl;
-                throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
-            } */
         } else {
             throw std::runtime_error("Erro de Sintaxe! Espera-se ':' na linha: " + std::to_string(lexer.getCurrentLine()));
         }
@@ -280,15 +268,13 @@ void analysisSubroutine() {
         } else {
             analysisFunction();
         }
-        // Rever esse trecho com o freitas
-
-         /*  if (token.getTypeString() == "sponto_virgula") {
+        if (token.getTypeString() == "sponto_virgula") {
             getNextToken();
         } else {
-               cout << 5 << endl;
+            cout << 5 << endl;
             throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
         }
-*/
+
     }
 }
 
@@ -361,11 +347,8 @@ void variablesDeclarationAnalysis() {
 
 void blockAnalysis() {
     getNextToken();
-    // Analisa declarações de variáveis
     variablesDeclarationAnalysis();
-    // Analisa subrotinas
     analysisSubroutine();
-    // Analisa comandos
     commandsAnalysis();
 
 }
