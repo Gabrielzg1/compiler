@@ -24,6 +24,8 @@ void Lexical::analyze() {
             Token token = getNextToken();
             tokens.push_back(token);
         }
+        Token token = getNextToken();
+        tokens.push_back(token);
     }
 }
 // Função para consumir espaços e comentários
@@ -36,7 +38,7 @@ void Lexical::consumeWhitespaceAndComments() {
             // Ignorar comentários entre '{' e '}'
             while (sourceFile.get(ch)) {
                 if (ch == '{') {
-                    std::cerr << "Erro: Comentário aberto na linha " << openLine << " não foi fechado." << std::endl;
+                    std::cerr << "Erro: Comentario aberto na linha " << openLine << " nao foi fechado." << std::endl;
                 }
                 if (ch == '}') {
                     closed = true;
@@ -64,13 +66,16 @@ void Lexical::consumeWhitespaceAndComments() {
 // Função que identifica e retorna o próximo token
 Token Lexical::getNextToken() {
     consumeWhitespaceAndComments();
-    if(sourceFile.peek() == EOF) {
+    if (sourceFile.eof()) {
         return Token(endfile, "endfile");
     }
+
     std::string lexeme;
     char ch;
 
     sourceFile.get(ch);
+
+
     // Identificadores e palavras-chave
     if (isLetter(ch)) {
         // Verifica se o identificador começa com '_'

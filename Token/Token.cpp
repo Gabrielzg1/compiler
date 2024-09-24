@@ -67,6 +67,7 @@ std::string Token::tokenTypeToString(TokenType type) const {
         case sdoispontos: return "sdoispontos";
         case sverdadeiro: return "sverdadeiro";
         case sfalso: return "sfalso";
+        case endfile: return "endfile";
         default: return "TOKEN_UNKNOWN";
     }
 }
