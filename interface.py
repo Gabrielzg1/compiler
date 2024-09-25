@@ -92,7 +92,7 @@ def run_compiler():
         if os.path.exists(output_file_path):
             with open(output_file_path, "r") as output_file:
                 output_content = output_file.read()
-                result += f"\nConteúdo do output.txt:\n{output_content}"
+                result += output_content
         else:
             result += "\nO arquivo output.txt não foi encontrado."
 
