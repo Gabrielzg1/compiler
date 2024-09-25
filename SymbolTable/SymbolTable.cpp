@@ -63,7 +63,7 @@ void SymbolTable::assignTypeToVariables(const std::string& newType) {
     }
 }
 
-void SymbolTable::printStack() const {
+/* void SymbolTable::printStack(ofstream basicOfstream) const {
     Node* current = top;
     while (current != nullptr) {
         std::cout << "Name: " << current->symbolInfo->name
@@ -73,4 +73,4 @@ void SymbolTable::printStack() const {
                   << std::endl;
         current = current->next;
     }
-}
+}*/
