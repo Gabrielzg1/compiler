@@ -2,29 +2,77 @@ import tkinter as tk
 from tkinter import scrolledtext
 import subprocess
 import os
+import platform
 
-# Função para rodar o CMake e o compilador, e exibir o resultado
+# Função para rodar o CMake e gerar o build
+def build_compiler():
+    cmake_source_directory = os.path.abspath(os.path.dirname(__file__))
+    build_directory = os.path.abspath(os.path.join(cmake_source_directory, 'build'))
+
+    # Criar o diretório de build se ele não existir
+    if not os.path.exists(build_directory):
+        os.makedirs(build_directory)
+
+    try:
+        # Executar o CMake (diferencia entre Windows e macOS)
+        system = platform.system()
+        if system == "Windows":
+            cmake_command = ["cmake", "-G", "MinGW Makefiles", cmake_source_directory]
+        else:  # macOS ou Linux
+            cmake_command = ["cmake", cmake_source_directory]
+
+        cmake_process = subprocess.run(cmake_command, cwd=build_directory, capture_output=True, text=True)
+
+        # Checar a saída do CMake
+        if cmake_process.returncode != 0:
+            raise RuntimeError(f"Erro ao rodar o CMake: {cmake_process.stderr}")
+
+        # Executar o make ou build (diferenciar entre Windows e macOS)
+        if system == "Windows":
+            build_command = ["cmake", "--build", ".", "--", "-j"]
+        else:  # macOS ou Linux
+            build_command = ["cmake", "--build", ".", "--", "-j"]
+
+        build_process = subprocess.run(build_command, cwd=build_directory, capture_output=True, text=True)
+
+        # Checar a saída do build
+        if build_process.returncode != 0:
+            raise RuntimeError(f"Erro ao rodar o build: {build_process.stderr}")
+
+        print("Build concluído com sucesso!")
+
+    except Exception as e:
+        print(f"Erro durante o processo de build: {str(e)}")
+
+
+# Função para rodar o compilador e exibir o resultado
 def run_compiler():
     code = code_input.get("1.0", tk.END)  # Obtém o código do campo de texto
     cmake_source_directory = os.path.abspath(os.path.dirname(__file__))
     result = ""
-    build_directory = os.path.abspath(os.path.join(cmake_source_directory, 'build/Debug'))
+    build_directory = os.path.abspath(os.path.join(cmake_source_directory, 'build'))
 
+    # Criar o diretório de build se ele não existir
+    if not os.path.exists(build_directory):
+        os.makedirs(build_directory)
 
     # Salvar o código em um arquivo 'code.txt'
     try:
         with open(os.path.join(build_directory, "code.txt"), "w") as file:
             file.write(code)
 
-
-        # Caminho para o executável 'compiler.exe' (dentro do diretório de build)
-        compiler_executable = os.path.join(build_directory, "compiler.exe")
+        # Caminho para o executável (diferenciar entre Windows e macOS)
+        system = platform.system()
+        if system == "Windows":
+            compiler_executable = os.path.join(build_directory, "compiler.exe")
+        else:  # macOS ou Linux
+            compiler_executable = os.path.join(build_directory, "compiler")
 
         # Verificar se o arquivo executável existe antes de tentar executá-lo
         if not os.path.exists(compiler_executable):
             raise FileNotFoundError(f"Executável não encontrado: {compiler_executable}")
 
-        # Executar o compilador e capturar a saída, mantendo o working directory como ./code
+        # Executar o compilador e capturar a saída
         compiler_run = subprocess.run([compiler_executable], cwd=build_directory, capture_output=True, text=True)
 
         # Adicionar a saída padrão (stdout) ao resultado
@@ -98,6 +146,9 @@ output_field.pack(padx=10, pady=10)
 
 # Inicializar os números de linha
 update_line_numbers()
+
+# Chamar a função para fazer o build do compilador
+build_compiler()
 
 # Iniciar o loop da interface gráfica
 root.mainloop()
