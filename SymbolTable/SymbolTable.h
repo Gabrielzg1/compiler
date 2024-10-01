@@ -28,7 +28,7 @@ public:
     SymbolInfo* peek() const;
     bool contains(std::string name);
     void assignTypeToVariables(const std::string& newType);
-    void printStack() const;
+    void printStack(ofstream basicOfstream) const;
 
 private:
     Node* top;  // Ponteiro para o topo da pilha

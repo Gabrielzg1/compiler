@@ -1,12 +1,20 @@
-{Teste duplo inicio fim - OK}
+{Teste falta ponto final
+}
 programa test1;
 
 var a,b,c: inteiro;
 
 {proc 1}
 procedimento analisa1;
-var y, x: inteiro;
+var a, x: inteiro;
        z: booleano;
+
+procedimento analisa2;
+inicio
+  leia(a);
+  b:= a*a+(c div b) 
+fim;
+
 inicio
   se x>1  entao
       x:= 0;
@@ -19,13 +27,7 @@ inicio
 fim;
 
 
-procedimento analisa2;
-inicio
-  leia(a);
-  b:= a*a+(c div b)
-fim;
 
-inicio
 inicio
     analisa1;
     analisa2;
@@ -33,6 +35,7 @@ inicio
     entao escreva(b)
     senao escreva(c)
 fim
-fim.
 
-{fim}
+{fim}   
+{fim}   
+
