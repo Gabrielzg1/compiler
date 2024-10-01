@@ -36,6 +36,7 @@ void procedureCallAnalysis();
 void simpleExpressionAnalysis();
 
 void getNextToken() {
+    cout << token.getTypeString() << endl;
     //outputFile << token.getTypeString() << endl;
     token = lexer.getNextToken();
 }
@@ -344,6 +345,7 @@ int main() {
                     if(token.getTypeString() == "sponto"){
                         getNextToken();
                         if(token.getTypeString() == "endfile"){
+                            cout << "Compilado com sucesso!" << endl;
                             outputFile << endl << " ------ Compilado com sucesso! --------" << endl << endl;
                         } else
                             throw std::runtime_error("ERRO sintatico: " + std::to_string(lexer.getCurrentLine()));
@@ -363,6 +365,7 @@ int main() {
 
     } catch (const std::exception& e) {
         // Em caso de erro, grava a mensagem de erro no arquivo
+        cout << "Erro: " <<   e.what() << endl;
         outputFile << lexer.getCurrentLine() << endl << "Erro: " <<   e.what() << endl;
     }
     outputFile.close();
