@@ -170,7 +170,7 @@ void whileAnalysis(){
         getNextToken();
         simpleCommand();
     } else {
-        throw std::runtime_error("Erro de Sintaxe! Espera-se 'faca' na linha: " + std::to_string(lexer.getCurrentLine()));
+        throw std::runtime_error("Erro de Sintaxe! Espera-se 'faca' ou um operador logico na linha: " + std::to_string(lexer.getCurrentLine()));
     }
 }
 
@@ -201,7 +201,7 @@ void commandsAnalysis() {
                     simpleCommand();
                 }
             } else {
-                throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
+                throw std::runtime_error("Erro de Sintaxe! Padrao invalido na linha: " + std::to_string(lexer.getCurrentLine()));
             }
         }
         getNextToken();
@@ -240,6 +240,7 @@ void analysisProcedure() {
         if(token.getTypeString() == "sponto_virgula"){
             blockAnalysis();
         } else {
+            cout << 2 << endl;
             throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
         }
     } else {
@@ -254,13 +255,13 @@ void analysisSubroutine() {
         } else {
             analysisFunction();
         }
-        if
-                (token.getTypeString() == "sponto_virgula") {
-getNextToken();
-} else {
-throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
-}
-}
+        if(token.getTypeString() == "sponto_virgula") {
+            getNextToken();
+        } else {
+            cout << 3 << endl;
+            throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
+        }
+    }
 }
 
 void typeAnalysis(){
@@ -281,7 +282,7 @@ void variablesAnalysis() {
                     if (token.getTypeString() == "svirgula") {
                         getNextToken();
                         if (token.getTypeString() == "sdoispontos") {
-                            throw std::runtime_error("Erro de Sintaxe! ':' inesperado na linha: " +
+                            throw std::runtime_error("Erro de Sintaxe! Padrao indevido na linha: " +
                                                      std::to_string(lexer.getCurrentLine()));
                         }
                     } else if (token.getTypeString() == "sdoispontos") {
@@ -317,6 +318,7 @@ void variablesDeclarationAnalysis() {
                     getNextToken(); // Avança o token após o ponto e vírgula
                     continue;
                 } else {
+                    cout << 4 << endl;
                     throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
                 }
             }
@@ -353,6 +355,7 @@ int main() {
                         throw std::runtime_error("Erro de Sintaxe! Espera-se '.' na linha: " + std::to_string(lexer.getCurrentLine()));
                     }
                 } else {
+                    cout << 5 << endl;
                     throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
                 }
             } else {
