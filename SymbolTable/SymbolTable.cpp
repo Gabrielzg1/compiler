@@ -9,7 +9,7 @@ SymbolTable::~SymbolTable() {
     }
 }
 
-void SymbolTable::push(string name, int scopeLevel, string type, int memoryAddress) {
+void SymbolTable::push(string name, string scopeLevel, string type, string memoryAddress) {
     SymbolInfo* symbolInfo = new SymbolInfo();
     symbolInfo->name = name;
     symbolInfo->scopeLevel = scopeLevel;
@@ -26,10 +26,11 @@ void SymbolTable::pop() {
     if (top != nullptr) {
         Node* temp = top;
         top = top->next;
-        delete temp->symbolInfo;
-        delete temp;
+        delete temp->symbolInfo; // Liberar a memória corretamente
+        delete temp;  // Não deixar vazamento de memória
     }
 }
+
 
 bool SymbolTable::isEmpty() const {
     return top == nullptr;
@@ -42,9 +43,9 @@ SymbolInfo* SymbolTable::peek() const {
     return nullptr;
 }
 
-bool SymbolTable::contains(std::string name) {
+bool SymbolTable::containsVar(std::string name) {
     Node* aux = top;
-    while (aux != nullptr) {
+    while (aux != nullptr && aux->symbolInfo != nullptr && aux->symbolInfo->scopeLevel != "L") {
         if (aux->symbolInfo->name == name) {
             return true;
         }
@@ -52,6 +53,29 @@ bool SymbolTable::contains(std::string name) {
     }
     return false;
 }
+
+bool SymbolTable::containsProcFunc(std::string name) {
+    Node* aux = top;
+    while (aux != nullptr && aux->symbolInfo != nullptr) {
+        if (aux->symbolInfo->name == name) {
+            return true;
+        }
+        aux = aux->next;
+    }
+    return false;
+}
+
+void SymbolTable::cutStack() {
+    // Vai até encontrar o "L" e remove todos os elemento, assim que o encontra, retira o "L" do escopo
+    while (top != nullptr && top->symbolInfo->scopeLevel != "L") {
+        pop();
+    }
+    if (top != nullptr) {
+        top->symbolInfo->scopeLevel = "";
+    }
+}
+
+
 
 void SymbolTable::assignTypeToVariables(const std::string& newType) {
     Node* current = top;
@@ -63,7 +87,7 @@ void SymbolTable::assignTypeToVariables(const std::string& newType) {
     }
 }
 
-/* void SymbolTable::printStack(ofstream basicOfstream) const {
+ void SymbolTable::printStack() const {
     Node* current = top;
     while (current != nullptr) {
         std::cout << "Name: " << current->symbolInfo->name
@@ -73,4 +97,4 @@ void SymbolTable::assignTypeToVariables(const std::string& newType) {
                   << std::endl;
         current = current->next;
     }
-}*/
+}

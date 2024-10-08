@@ -275,8 +275,8 @@ void typeAnalysis(){
 void variablesAnalysis() {
     do {
         if (token.getTypeString() == "sidentificador") {
-            if (!symboltable->contains(token.getLexeme())) {
-                symboltable->push(token.getLexeme(), 0, "var", 0);
+            if (!symboltable->containsVar(token.getLexeme())) {
+                symboltable->push(token.getLexeme(), "", "var", "");
                 getNextToken();
                 if (token.getTypeString() == "svirgula" || token.getTypeString() == "sdoispontos") {
                     if (token.getTypeString() == "svirgula") {
@@ -340,7 +340,7 @@ int main() {
         if (token.getTypeString() == "sprograma"){
             getNextToken();
             if(token.getTypeString() == "sidentificador"){
-                symboltable->push(token.getLexeme(), 0, "programa", 0);
+                symboltable->push(token.getLexeme(), "", "programa", "");
                 getNextToken();
                 if(token.getTypeString() == "sponto_virgula"){
                     blockAnalysis();
