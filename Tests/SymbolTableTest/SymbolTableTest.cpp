@@ -38,6 +38,10 @@ int main() {
     std::cout << "\nPruning the stack until the first 'L' scope level..." << std::endl;
     symbolTable.cutStack();
 
+    std::cout << "\nPruning the stack until the first 'L' scope level..." << std::endl;
+    symbolTable.cutStack();
+
+
     // Imprimir a pilha novamente após a poda
     std::cout << "\nStack after pruning:" << std::endl;
     symbolTable.printStack();

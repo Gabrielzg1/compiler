@@ -26,14 +26,16 @@ public:
     void pop();
     bool isEmpty() const;
     SymbolInfo* peek() const;
-    bool containsVar(std::string name);
-    bool containsProcFunc(std::string name);
+    bool containsVar(std::string name) const;
+    bool containsProcFunc(std::string name) const;
     void assignTypeToVariables(const std::string& newType);
     void printStack() const;
     void cutStack();
 
 private:
     Node* top;  // Ponteiro para o topo da pilha
+    std::vector<std::string> toPostFix(const std::vector<std::string>& input); // conversor de in Fix to post Fix
+
 };
 
 #endif // SYMBOL_TABLE_H

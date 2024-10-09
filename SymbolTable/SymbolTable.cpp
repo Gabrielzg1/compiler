@@ -1,4 +1,7 @@
 #include "SymbolTable.h"
+#include <stack>
+#include <vector>
+#include <string>
 #include <iostream>
 
 SymbolTable::SymbolTable() : top(nullptr) {}
@@ -43,7 +46,7 @@ SymbolInfo* SymbolTable::peek() const {
     return nullptr;
 }
 
-bool SymbolTable::containsVar(std::string name) {
+bool SymbolTable::containsVar(std::string name) const {
     Node* aux = top;
     while (aux != nullptr && aux->symbolInfo != nullptr && aux->symbolInfo->scopeLevel != "L") {
         if (aux->symbolInfo->name == name) {
@@ -54,7 +57,7 @@ bool SymbolTable::containsVar(std::string name) {
     return false;
 }
 
-bool SymbolTable::containsProcFunc(std::string name) {
+bool SymbolTable::containsProcFunc(std::string name) const {
     Node* aux = top;
     while (aux != nullptr && aux->symbolInfo != nullptr) {
         if (aux->symbolInfo->name == name) {
@@ -98,3 +101,8 @@ void SymbolTable::assignTypeToVariables(const std::string& newType) {
         current = current->next;
     }
 }
+
+
+std::vector<std::string> toPostFix(const std::vector<std::string>& input) {
+   // Implementar in Fix para postfix respeitando a regra de precedencia
+ }
