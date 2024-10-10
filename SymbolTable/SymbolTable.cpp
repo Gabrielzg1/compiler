@@ -103,6 +103,3 @@ void SymbolTable::assignTypeToVariables(const std::string& newType) {
 }
 
 
-std::vector<std::string> toPostFix(const std::vector<std::string>& input) {
-   // Implementar in Fix para postfix respeitando a regra de precedencia
- }
