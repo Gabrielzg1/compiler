@@ -34,7 +34,7 @@ public:
 
 private:
     Node* top;  // Ponteiro para o topo da pilha
-    std::vector<std::string> toPostFix(const std::vector<std::string>& input); // conversor de in Fix to post Fix
+    //std::vector<std::string> toPostFix(const std::vector<std::string>& input); // conversor de in Fix to post Fix
 
 };
 
