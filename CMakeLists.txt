@@ -37,3 +37,19 @@ add_executable(lexical_test
 target_link_libraries(compiler common_lib)
 target_link_libraries(test_symbol_table common_lib)
 target_link_libraries(lexical_test common_lib)
+
+# Copy input.txt (or any other file) to the build directory after build
+add_custom_command(
+        TARGET compiler POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_SOURCE_DIR}/code/code.txt      # Path to the source file
+        $<TARGET_FILE_DIR:compiler>             # Destination: the directory of the executable
+)
+add_custom_command(
+        TARGET compiler POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_SOURCE_DIR}/code/output.txt      # Path to the source file
+        $<TARGET_FILE_DIR:compiler>             # Destination: the directory of the executable
+)
+
+

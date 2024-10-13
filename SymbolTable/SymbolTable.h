@@ -7,9 +7,9 @@ using namespace std;
 // Estrutura que armazena as informações do símbolo
 struct SymbolInfo {
     string name;
-    int scopeLevel;
+    string scopeLevel;
     string type;
-    int memoryAddress;
+    string memoryAddress;
 };
 
 // Estrutura do nó da pilha
@@ -22,16 +22,20 @@ class SymbolTable {
 public:
     SymbolTable();
     ~SymbolTable();
-    void push(string name, int scopeLevel, string type, int memoryAddress);
+    void push(string name, string scopeLevel, string type, string memoryAddress);
     void pop();
     bool isEmpty() const;
     SymbolInfo* peek() const;
-    bool contains(std::string name);
+    bool containsVar(std::string name) const;
+    bool containsProcFunc(std::string name) const;
     void assignTypeToVariables(const std::string& newType);
     void printStack() const;
+    void cutStack();
 
 private:
     Node* top;  // Ponteiro para o topo da pilha
+    //std::vector<std::string> toPostFix(const std::vector<std::string>& input); // conversor de in Fix to post Fix
+
 };
 
 #endif // SYMBOL_TABLE_H
