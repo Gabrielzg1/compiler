@@ -110,12 +110,23 @@ void readAnalysis(){
     if(token.getTypeString() == "sabre_parenteses"){
         getNextToken();
         if(token.getTypeString() == "sidentificador"){
-            getNextToken();
-            if(token.getTypeString() == "sfecha_parenteses"){
+            if(symboltable->containsVar(token.getLexeme())){
+                /* Inserir Lógica de busca geracao de código -> pega a primeira ocorrencia da variavel
+                 *
+                 * /////
+                 *
+                */
                 getNextToken();
-            } else {
-                throw std::runtime_error("Erro de Sintaxe! Espera-se ')' na linha: " + std::to_string(lexer.getCurrentLine()));
+                if(token.getTypeString() == "sfecha_parenteses"){
+                    getNextToken();
+                } else {
+                    throw std::runtime_error("Erro de Sintaxe! Espera-se ')' na linha: " + std::to_string(lexer.getCurrentLine()));
+                }
             }
+            else {
+                throw std::runtime_error("Erro de Sintaxe! Variavel nao declarada na linha: " + std::to_string(lexer.getCurrentLine()));
+            }
+
         } else
             throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
     } else
@@ -127,11 +138,20 @@ void writeAnalysis(){
     if(token.getTypeString() == "sabre_parenteses"){
         getNextToken();
         if(token.getTypeString() == "sidentificador"){
-            getNextToken();
-            if(token.getTypeString() == "sfecha_parenteses"){
+            if(symboltable->containsVar(token.getLexeme())){
+                /* Inserir Lógica de busca geracao de código -> pega a primeira ocorrencia da variavel
+                 *
+                 * /////
+                 *
+                */
                 getNextToken();
+                if(token.getTypeString() == "sfecha_parenteses"){
+                    getNextToken();
+                } else {
+                    throw std::runtime_error("Erro de Sintaxe! Espera-se ')' na linha: " + std::to_string(lexer.getCurrentLine()));
+                }
             } else {
-                throw std::runtime_error("Erro de Sintaxe! Espera-se ')' na linha: " + std::to_string(lexer.getCurrentLine()));
+                throw std::runtime_error("Erro de Sintaxe! Variavel nao declarada na linha: " + std::to_string(lexer.getCurrentLine()));
             }
         } else
             throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
@@ -236,16 +256,24 @@ void analysisFunction() {
 void analysisProcedure() {
     getNextToken();
     if (token.getTypeString() == "sidentificador") {
-        getNextToken();
-        if(token.getTypeString() == "sponto_virgula"){
-            blockAnalysis();
+        if(!symboltable->containsProcFunc(token.getLexeme())){
+            symboltable->push(token.getLexeme(), "L", "procedimento", "");
+            getNextToken();
+            if(token.getTypeString() == "sponto_virgula"){
+                blockAnalysis();
+            } else {
+                cout << 2 << endl;
+                throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
+            }
         } else {
-            cout << 2 << endl;
-            throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
+            throw std::runtime_error("Erro de Sintaxe! Procedimento ja declarado na linha: " + std::to_string(lexer.getCurrentLine()));
         }
+
+
     } else {
         throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
     }
+    symboltable->cutStack();
 }
 
 void analysisSubroutine() {
