@@ -235,25 +235,31 @@ void commandsAnalysis() {
 void analysisFunction() {
     getNextToken();
     if (token.getTypeString() == "sidentificador") {
-        //ponto de atencao
-        getNextToken();
-        if(token.getTypeString() == "sdoispontos"){
+        if(!symboltable->containsProcFunc(token.getLexeme())){
+            symboltable->push(token.getLexeme(), "L", "function", "");
             getNextToken();
-            if(token.getTypeString() == "sinteiro" || token.getTypeString() == "sbooleano"){
+            if(token.getTypeString() == "sdoispontos"){
                 getNextToken();
-                if(token.getTypeString() == "sponto_virgula"){
-                    blockAnalysis();
+                if(token.getTypeString() == "sinteiro" || token.getTypeString() == "sbooleano"){
+                    symboltable->assignTypeToFunction("funcao " + token.getLexeme());
+                    getNextToken();
+                    if(token.getTypeString() == "sponto_virgula"){
+                        blockAnalysis();
+                    }
+                } else {
+                    throw std::runtime_error("Erro de Sintaxe! Tipo invalido na linha: " + std::to_string(lexer.getCurrentLine()));
                 }
-            } else {
-                throw std::runtime_error("Erro de Sintaxe! Tipo invalido na linha: " + std::to_string(lexer.getCurrentLine()));
-            }
 
+            } else {
+                throw std::runtime_error("Erro de Sintaxe! Espera-se ':' na linha: " + std::to_string(lexer.getCurrentLine()));
+            }
         } else {
-            throw std::runtime_error("Erro de Sintaxe! Espera-se ':' na linha: " + std::to_string(lexer.getCurrentLine()));
+            throw std::runtime_error("Erro de Sintaxe! Funcao ja declarada na linha: " + std::to_string(lexer.getCurrentLine()));
         }
     } else {
         throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
     }
+    symboltable->cutStack();
 }
 
 void analysisProcedure() {
@@ -380,6 +386,7 @@ int main() {
                         if(token.getTypeString() == "endfile"){
                             cout << "Compilado com sucesso!" << endl;
                             outputFile << endl << " ------ Compilado com sucesso! --------" << endl << endl;
+                            symboltable->printStack();
                         } else
                             throw std::runtime_error("ERRO sintatico: " + std::to_string(lexer.getCurrentLine()));
                     } else {

@@ -1,3 +1,2 @@
-
- ------ Compilado com sucesso! --------
-
+12
+Erro: Erro de Sintaxe! Procedimento ja declarado na linha: 12

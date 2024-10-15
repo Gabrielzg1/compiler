@@ -90,6 +90,16 @@ void SymbolTable::assignTypeToVariables(const std::string& newType) {
     }
 }
 
+void SymbolTable::assignTypeToFunction(const std::string& newType) {
+    Node* current = top;
+    while (current != nullptr) {
+        if (current->symbolInfo->type == "function") {
+            current->symbolInfo->type = newType;
+        }
+        current = current->next;
+    }
+}
+
  void SymbolTable::printStack() const {
     Node* current = top;
     while (current != nullptr) {
