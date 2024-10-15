@@ -1,13 +1,10 @@
 {este programa e o primeiro teste}
 programa teste;
 {}
-var x,y,x: inteiro;
+var x,y,total: inteiro;
 
 procedimento soma;
-inicio
-  t:= x+y;
-fim;
-procedimento soma;
+var total, x, y, u: booleano;
 inicio
   t:= x+y;
 fim;
@@ -15,6 +12,6 @@ fim;
 inicio
   leia(x);
   leia(y);
-  total:= soma;
+  total := soma;
   escreva(total)
 fim.

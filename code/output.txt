@@ -1,2 +1,3 @@
-4
-Erro: Erro de Sintaxe! Variavel ja declarada na linha: 4
+
+ ------ Compilado com sucesso! --------
+

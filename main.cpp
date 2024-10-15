@@ -66,6 +66,7 @@ void atribAnalysis(){
 
 void factorAnalysis() {
     if(token.getTypeString() == "sidentificador") {
+        // ponto de atencao
         functionCallAnalysis();
     } else if (token.getTypeString() == "snumero") {
         getNextToken();
@@ -196,6 +197,7 @@ void whileAnalysis(){
 
 void simpleCommand(){
     if(token.getTypeString() == "sidentificador"){
+        // ponto de atencao
         atrib_chproc();
     } else if (token.getTypeString() == "sse"){
         ifAnalysis();
@@ -233,6 +235,7 @@ void commandsAnalysis() {
 void analysisFunction() {
     getNextToken();
     if (token.getTypeString() == "sidentificador") {
+        //ponto de atencao
         getNextToken();
         if(token.getTypeString() == "sdoispontos"){
             getNextToken();
