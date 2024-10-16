@@ -53,6 +53,7 @@ void simpleExpressionAnalysis(){
 }
 
 void functionCallAnalysis() {
+    // Alterar na geracao de código
     getNextToken();
 }
 
@@ -71,6 +72,7 @@ void factorAnalysis() {
             if(symboltable->getFuncType(token.getLexeme()) == "funcao inteiro" || symboltable->getFuncType(token.getLexeme()) == "funcao booleano") {
                 functionCallAnalysis();
             } else {
+                // Uso de vatiavel
                 getNextToken();
             }
         }
