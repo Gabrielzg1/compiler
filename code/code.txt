@@ -9,11 +9,7 @@ inicio
   total := x + y;
 fim;
 
-procedimento soma;
-var x, y, total: inteiro;
-inicio
-  total := x + y;
-fim;
+
 
 inicio
   leia(x);

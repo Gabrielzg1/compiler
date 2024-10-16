@@ -32,6 +32,7 @@ public:
     void printStack() const;
     void cutStack();
     void assignTypeToFunction(const std::string& newType);
+    string getFuncType(const std::string& name);
 
 private:
     Node* top;  // Ponteiro para o topo da pilha

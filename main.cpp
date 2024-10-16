@@ -67,7 +67,16 @@ void atribAnalysis(){
 void factorAnalysis() {
     if(token.getTypeString() == "sidentificador") {
         // ponto de atencao
-        functionCallAnalysis();
+        if(symboltable->containsProcFunc(token.getLexeme())){
+            if(symboltable->getFuncType(token.getLexeme()) == "funcao inteiro" || symboltable->getFuncType(token.getLexeme()) == "funcao booleano") {
+                functionCallAnalysis();
+            } else {
+                getNextToken();
+            }
+        }
+        else
+            throw std::runtime_error("Erro de Sintaxe! Variavel nao declarada na linha: " + std::to_string(lexer.getCurrentLine()));
+
     } else if (token.getTypeString() == "snumero") {
         getNextToken();
     } else if (token.getTypeString() == "snao") {
