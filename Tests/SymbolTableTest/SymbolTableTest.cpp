@@ -81,11 +81,12 @@ int main() {
 
     // -x + 7 * (y div 3) > 10
     vector<string> input = {
-            "-u", "x", "+", "7", "*", "y", "(", "div", "3", ")", ">", "10"
+            "-u", "x", "+", "7", "*", "y", "(", "div", "3", ")", "=", "10"
     };
 
     vector<string> output = symbolTable.toPostFix(input);
 
+    cout << "Posfixa: ";
     for (const string& token : output) {
         std::cout << token << " ";
     }

@@ -134,7 +134,7 @@ vector<string> SymbolTable::toPostFix(const vector<string>& input) {
         if (op == "+u" || op == "-u") return 4;  // Precedência alta para operadores unários
         if (op == "*" || op == "div") return 3;  // Multiplicação e divisão
         if (op == "+" || op == "-") return 2;    // Adição e subtração binárias
-        if (op == "==" || op == "!=" || op == "<" || op == ">" || op == "<=" || op == ">=") return 1;
+        if (op == "=" || op == "!=" || op == "<" || op == ">" || op == "<=" || op == ">=") return 1;
         if (op == "nao") return 4;
         if (op == "e") return 0;
         if (op == "ou") return -1;
@@ -144,7 +144,7 @@ vector<string> SymbolTable::toPostFix(const vector<string>& input) {
     // Função para verificar se o token é um operador
     auto isOperator = [](const string& token) -> bool {
         return token == "+" || token == "-" || token == "*" || token == "div" ||
-               token == "==" || token == "!=" || token == "<" || token == ">" ||
+               token == "=" || token == "!=" || token == "<" || token == ">" ||
                token == "<=" || token == ">=" || token == "nao" || token == "e" || token == "ou" ||
                token == "+u" || token == "-u";  // Inclui operadores unários
     };
@@ -231,7 +231,7 @@ Type SymbolTable::inferType(const vector<string>& postFixExpr) {
                 // Resultado também é inteiro
                 typeStack.push(Type::Integer);
 
-            } else if (token == "==" || token == "!=" || token == "<" || token == ">" ||
+            } else if (token == "=" || token == "!=" || token == "<" || token == ">" ||
                        token == "<=" || token == ">=") {
                 // Operadores relacionais: ambos operandos devem ser inteiros
                 if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
