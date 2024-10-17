@@ -79,14 +79,27 @@ int main() {
 
     cout << endl << endl;
 
+    // -x + 7 * (y div 3) > 10
     vector<string> input = {
-            "x", "+", "7", "*", "5", "div", "(", "30", "+", "y", ")", "<=", "(", "x", "*", "a", "+", "2", ")", "e", "(", "z", ">", "0", ")"
+            "-u", "x", "+", "7", "*", "y", "(", "div", "3", ")", ">", "10"
     };
 
     vector<string> output = symbolTable.toPostFix(input);
 
     for (const string& token : output) {
         std::cout << token << " ";
+    }
+
+    std::cout << std::endl;
+    try {
+        Type resultType = symbolTable.inferType(output);
+        if (resultType == Type::Integer) {
+            cout << "O tipo da expressão é Inteiro." << endl;
+        } else {
+            cout << "O tipo da expressão é Booleano." << endl;
+        }
+    } catch (const exception& ex) {
+        cout << "Erro: " << ex.what() << endl;
     }
 
 
