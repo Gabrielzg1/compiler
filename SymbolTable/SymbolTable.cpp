@@ -68,6 +68,8 @@ bool SymbolTable::containsProcFunc(std::string name) const {
     return false;
 }
 
+
+
 void SymbolTable::cutStack() {
     // Vai até encontrar o "L" e remove todos os elemento, assim que o encontra, retira o "L" do escopo
     while (top != nullptr && top->symbolInfo->scopeLevel != "L") {
@@ -122,5 +124,68 @@ string SymbolTable::getFuncType(const std::string& name) {
         current = current->next;
     }
 }
+
+vector<string> SymbolTable::toPostFix(const vector<string>& input) {
+    stack<string> operators;
+    vector<string> output;
+
+    // Função para determinar a precedência de um operador
+    auto precedence = [](const string& op) -> int {
+        if (op == "*" || op == "div") return 3;
+        if (op == "+" || op == "-") return 2;
+        if (op == "==" || op == "!=" || op == "<" || op == ">" || op == "<=" || op == ">=") return 1;
+        if (op == "nao") return 4;
+        if (op == "e") return 0;
+        if (op == "ou") return -1;
+        return -2;
+    };
+
+    // Função para verificar se o token é um operador
+    auto isOperator = [](const string& token) -> bool {
+        return token == "+" || token == "-" || token == "*" || token == "div" ||
+               token == "==" || token == "!=" || token == "<" || token == ">" ||
+               token == "<=" || token == ">=" || token == "nao" || token == "e" || token == "ou";
+    };
+
+    // Percorre a expressão infixa da esquerda para a direita
+    for (const string& token : input) {
+        if (!isOperator(token) && token != "(" && token != ")") {
+            // Se for um operando (variável ou número), copia para a saída
+            output.push_back(token);
+        } else if (token == "(") {
+            // Se for um abre-parênteses, empilha
+            operators.push(token);
+        } else if (token == ")") {
+            // Se for um fecha-parênteses, desempilha até o abre-parênteses
+            while (!operators.empty() && operators.top() != "(") {
+                output.push_back(operators.top());
+                operators.pop();
+            }
+            // Remove o abre-parênteses da pilha
+            if (!operators.empty()) {
+                operators.pop();
+            }
+        } else if (isOperator(token)) {
+            // Se for um operador, desempilha todos os operadores com precedência maior ou igual
+            while (!operators.empty() && operators.top() != "(" && precedence(operators.top()) >= precedence(token)) {
+                output.push_back(operators.top());
+                operators.pop();
+            }
+            // Empilha o operador atual
+            operators.push(token);
+        }
+    }
+
+    // Ao terminar a expressão, desempilha todos os operadores restantes
+    while (!operators.empty()) {
+        output.push_back(operators.top());
+        operators.pop();
+    }
+
+    return output;
+}
+
+
+// Ver precedencia MAIOR OU IGUAL
 
 

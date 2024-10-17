@@ -33,10 +33,11 @@ public:
     void cutStack();
     void assignTypeToFunction(const std::string& newType);
     string getFuncType(const std::string& name);
+    vector<string> toPostFix(const vector<string>& input);
+
 
 private:
     Node* top;  // Ponteiro para o topo da pilha
-    //std::vector<std::string> toPostFix(const std::vector<std::string>& input); // conversor de in Fix to post Fix
 
 };
 

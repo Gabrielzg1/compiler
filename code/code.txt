@@ -3,7 +3,13 @@ programa teste;
 {}
 var x,y,total: inteiro;
 
-funcao soma: inteiro;
+funcao soma: booleano;
+var x, y, total: inteiro;
+inicio
+  total := x + y;
+fim;
+
+procedimento soma2;
 var x, y, total: inteiro;
 inicio
   total := x + y;

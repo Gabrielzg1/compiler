@@ -1,6 +1,8 @@
 // Tests/SymbolTableTest/SymbolTableTest.cpp
 #include "../../SymbolTable/SymbolTable.h"
 #include <iostream>
+#include <string>
+#include <vector>
 
 int main() {
     SymbolTable symbolTable;
@@ -73,6 +75,22 @@ int main() {
     std::cout << "Checking if 'localVar' exists in the local scope: " << (symbolTable.containsVar("localVar") ? "True" : "False") << std::endl;
     symbolTable.cutStack();
     std::cout << "Checking if 'localVar' exists after scope cut: " << (symbolTable.containsVar("localVar") ? "True" : "False") << std::endl;
+
+
+    cout << endl << endl;
+
+    vector<string> input = {
+            "x", "+", "7", "*", "5", "div", "(", "30", "+", "y", ")", "<=", "(", "x", "*", "a", "+", "2", ")", "e", "(", "z", ">", "0", ")"
+    };
+
+    vector<string> output = symbolTable.toPostFix(input);
+
+    for (const string& token : output) {
+        std::cout << token << " ";
+    }
+
+
+
 
     return 0;
 }

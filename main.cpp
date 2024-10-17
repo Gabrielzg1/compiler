@@ -8,6 +8,7 @@ using namespace std;
 Lexical lexer("code.txt");
 SymbolTable* symboltable = new SymbolTable();
 Token token = lexer.getNextToken();
+vector<string> auxiliar;
 
 // Arquivo de saída para salvar os resultados
 ofstream outputFile("output.txt");
@@ -42,6 +43,7 @@ void getNextToken() {
 }
 
 void simpleExpressionAnalysis(){
+    // Operador unario
     if(token.getTypeString() == "smais" || token.getTypeString() == "smenos"){
         getNextToken();
     }
@@ -58,6 +60,7 @@ void functionCallAnalysis() {
 }
 
 void procedureCallAnalysis(){
+    // Geracao de código
 }
 
 void atribAnalysis(){
@@ -77,7 +80,7 @@ void factorAnalysis() {
             }
         }
         else
-            throw std::runtime_error("Erro de Sintaxe! Variavel nao declarada na linha: " + std::to_string(lexer.getCurrentLine()));
+            throw std::runtime_error("Variavel nao declarada na linha: " + std::to_string(lexer.getCurrentLine()));
 
     } else if (token.getTypeString() == "snumero") {
         getNextToken();
@@ -136,7 +139,7 @@ void readAnalysis(){
                 }
             }
             else {
-                throw std::runtime_error("Erro de Sintaxe! Variavel nao declarada na linha: " + std::to_string(lexer.getCurrentLine()));
+                throw std::runtime_error("Variavel nao declarada na linha: " + std::to_string(lexer.getCurrentLine()));
             }
 
         } else
@@ -163,7 +166,7 @@ void writeAnalysis(){
                     throw std::runtime_error("Erro de Sintaxe! Espera-se ')' na linha: " + std::to_string(lexer.getCurrentLine()));
                 }
             } else {
-                throw std::runtime_error("Erro de Sintaxe! Variavel nao declarada na linha: " + std::to_string(lexer.getCurrentLine()));
+                throw std::runtime_error("Variavel nao declarada na linha: " + std::to_string(lexer.getCurrentLine()));
             }
         } else
             throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
@@ -265,7 +268,7 @@ void analysisFunction() {
                 throw std::runtime_error("Erro de Sintaxe! Espera-se ':' na linha: " + std::to_string(lexer.getCurrentLine()));
             }
         } else {
-            throw std::runtime_error("Erro de Sintaxe! Funcao ja declarada na linha: " + std::to_string(lexer.getCurrentLine()));
+            throw std::runtime_error("Funcao ja declarada na linha: " + std::to_string(lexer.getCurrentLine()));
         }
     } else {
         throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
@@ -286,7 +289,7 @@ void analysisProcedure() {
                 throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
             }
         } else {
-            throw std::runtime_error("Erro de Sintaxe! Procedimento ja declarado na linha: " + std::to_string(lexer.getCurrentLine()));
+            throw std::runtime_error("Procedimento ja declarado na linha: " + std::to_string(lexer.getCurrentLine()));
         }
 
 
@@ -341,7 +344,7 @@ void variablesAnalysis() {
                                              std::to_string(lexer.getCurrentLine()));
                 }
             } else {
-                throw std::runtime_error("Erro de Sintaxe! Variavel ja declarada na linha: " +
+                throw std::runtime_error("Variavel ja declarada na linha: " +
                                          std::to_string(lexer.getCurrentLine()));
             }
         } else {
