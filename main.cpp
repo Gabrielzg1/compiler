@@ -75,7 +75,7 @@ void factorAnalysis() {
             if(symboltable->getFuncType(token.getLexeme()) == "funcao inteiro" || symboltable->getFuncType(token.getLexeme()) == "funcao booleano") {
                 functionCallAnalysis();
             } else {
-                // Uso de vatiavel
+                // Uso de vatiavel ??? verificar
                 getNextToken();
             }
         }
@@ -186,6 +186,8 @@ void atrib_chproc() {
 void ifAnalysis(){
     getNextToken();
     expressionAnalysis();
+
+
     if(token.getTypeString() == "sentao"){
         getNextToken();
         simpleCommand();
@@ -201,6 +203,8 @@ void ifAnalysis(){
 void whileAnalysis(){
     getNextToken();
     expressionAnalysis();
+
+
     if(token.getTypeString() == "sfaca"){
         getNextToken();
         simpleCommand();
