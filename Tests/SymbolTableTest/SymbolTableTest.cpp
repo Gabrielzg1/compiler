@@ -95,9 +95,9 @@ int main() {
     try {
         Type resultType = symbolTable.inferType(output);
         if (resultType == Type::Integer) {
-            cout << "O tipo da expressão é Inteiro." << endl;
+            cout << "O tipo da expressao: Inteiro." << endl;
         } else {
-            cout << "O tipo da expressão é Booleano." << endl;
+            cout << "O tipo da expressao: Booleano." << endl;
         }
     } catch (const exception& ex) {
         cout << "Erro: " << ex.what() << endl;

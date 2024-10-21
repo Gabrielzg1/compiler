@@ -1,6 +1,7 @@
 #ifndef SYMBOL_TABLE_H
 #define SYMBOL_TABLE_H
 
+#include <vector>
 #include <string>
 using namespace std;
 
