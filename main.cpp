@@ -76,7 +76,10 @@ void factorAnalysis() {
                 functionCallAnalysis();
             } else {
                 // Uso de vatiavel
-                getNextToken();
+                if(!symboltable->isProcedure(token.getLexeme())){
+                    getNextToken();
+                } else
+                    throw std::runtime_error("Procedimento usado indevidamente na linha: " + std::to_string(lexer.getCurrentLine()));
             }
         }
         else

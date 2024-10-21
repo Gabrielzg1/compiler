@@ -38,6 +38,7 @@ public:
     string getFuncType(const std::string& name);
     vector<string> toPostFix(const vector<string>& input);
     Type inferType(const vector<string>& postFixExpr);
+    bool isProcedure(const std::string& name);
 
 
 private:

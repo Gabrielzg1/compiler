@@ -7,6 +7,7 @@ funcao soma: booleano;
 var x, y, total: inteiro;
 inicio
   total := x + y;
+  soma := total;
 fim;
 
 procedimento soma2;
@@ -20,6 +21,6 @@ fim;
 inicio
   leia(x);
   leia(y);
-  total := soma;
+  total := soma + 10 - 50 + soma2;
   escreva(total)
 fim.

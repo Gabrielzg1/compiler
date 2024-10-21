@@ -113,6 +113,18 @@ string SymbolTable::getFuncType(const std::string& name) {
     return "";
 }
 
+bool SymbolTable::isProcedure(const std::string& name) {
+    Node *current = top;
+    while (current != nullptr) {
+        if (current->symbolInfo->name == name && current->symbolInfo->type == "procedimento") {
+            return true;
+        }
+        current = current->next;
+    }
+    return false;
+
+}
+
  void SymbolTable::printStack() const {
     Node* current = top;
     while (current != nullptr) {
