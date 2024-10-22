@@ -19,9 +19,6 @@ struct Node {
     Node* next;
 };
 
-enum class Type { Integer, Boolean };  // Tipos suportados
-
-
 class SymbolTable {
 public:
     SymbolTable();
@@ -38,8 +35,8 @@ public:
     void assignTypeToFunction(const std::string& newType);
     string getFuncType(const std::string& name);
     vector<string> toPostFix(const vector<string>& input);
-    Type inferType(const vector<string>& postFixExpr);
-    bool isProcedure(const std::string& name);
+    string inferType(const vector<string>& postFixExpr);
+    bool isProcedureOrProgram(const std::string& name);
 
 
 private:

@@ -113,17 +113,19 @@ string SymbolTable::getFuncType(const std::string& name) {
     return "";
 }
 
-bool SymbolTable::isProcedure(const std::string& name) {
+bool SymbolTable::isProcedureOrProgram(const std::string& name) {
     Node *current = top;
     while (current != nullptr) {
-        if (current->symbolInfo->name == name && current->symbolInfo->type == "procedimento") {
+        // Verifica se o identificador é um procedimento ou um programa
+        if (current->symbolInfo->name == name &&
+            (current->symbolInfo->type == "procedimento" || current->symbolInfo->type == "programa")) {
             return true;
         }
         current = current->next;
     }
     return false;
-
 }
+
 
  void SymbolTable::printStack() const {
     Node* current = top;
@@ -201,8 +203,9 @@ vector<string> SymbolTable::toPostFix(const vector<string>& input) {
 }
 
 // Função para inferir o tipo da expressão
-Type SymbolTable::inferType(const vector<string>& postFixExpr) {
-    stack<Type> typeStack;
+// Função para inferir o tipo da expressão
+string SymbolTable::inferType(const vector<string>& postFixExpr) {
+    stack<string> typeStack;
 
     // Função auxiliar para verificar se o token é um operador
     auto isOperator = [](const string& token) -> bool {
@@ -216,71 +219,71 @@ Type SymbolTable::inferType(const vector<string>& postFixExpr) {
     for (const string& token : postFixExpr) {
         if (!isOperator(token)) {
             // Se for um operando (variável ou número), assume-se que é inteiro (I)
-            typeStack.push(Type::Integer);
+            typeStack.push("inteiro");
         } else {
             if (token == "+" || token == "-" || token == "*" || token == "div") {
                 // Operadores aritméticos binários: ambos operandos devem ser inteiros
                 if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
-                Type right = typeStack.top(); typeStack.pop();
-                Type left = typeStack.top(); typeStack.pop();
+                string right = typeStack.top(); typeStack.pop();
+                string left = typeStack.top(); typeStack.pop();
 
-                if (right != Type::Integer || left != Type::Integer) {
+                if (right != "inteiro" || left != "inteiro") {
                     throw runtime_error("Erro: operadores aritméticos requerem inteiros.");
                 }
 
                 // Resultado também é inteiro
-                typeStack.push(Type::Integer);
+                typeStack.push("inteiro");
 
             } else if (token == "+u" || token == "-u") {
                 // Operadores aritméticos unários: operando deve ser inteiro
                 if (typeStack.empty()) throw runtime_error("Erro: operandos insuficientes.");
-                Type operand = typeStack.top(); typeStack.pop();
+                string operand = typeStack.top(); typeStack.pop();
 
-                if (operand != Type::Integer) {
+                if (operand != "inteiro") {
                     throw runtime_error("Erro: operadores unários requerem inteiros.");
                 }
 
                 // Resultado também é inteiro
-                typeStack.push(Type::Integer);
+                typeStack.push("inteiro");
 
             } else if (token == "=" || token == "!=" || token == "<" || token == ">" ||
                        token == "<=" || token == ">=") {
                 // Operadores relacionais: ambos operandos devem ser inteiros
                 if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
-                Type right = typeStack.top(); typeStack.pop();
-                Type left = typeStack.top(); typeStack.pop();
+                string right = typeStack.top(); typeStack.pop();
+                string left = typeStack.top(); typeStack.pop();
 
-                if (right != Type::Integer || left != Type::Integer) {
+                if (right != "inteiro" || left != "inteiro") {
                     throw runtime_error("Erro: operadores relacionais requerem inteiros.");
                 }
 
                 // Resultado é booleano
-                typeStack.push(Type::Boolean);
+                typeStack.push("booleano");
 
             } else if (token == "e" || token == "ou") {
                 // Operadores lógicos binários: ambos operandos devem ser booleanos
                 if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
-                Type right = typeStack.top(); typeStack.pop();
-                Type left = typeStack.top(); typeStack.pop();
+                string right = typeStack.top(); typeStack.pop();
+                string left = typeStack.top(); typeStack.pop();
 
-                if (right != Type::Boolean || left != Type::Boolean) {
+                if (right != "booleano" || left != "booleano") {
                     throw runtime_error("Erro: operadores lógicos requerem booleanos.");
                 }
 
                 // Resultado também é booleano
-                typeStack.push(Type::Boolean);
+                typeStack.push("booleano");
 
             } else if (token == "nao") {
                 // Operador unário lógico: operando deve ser booleano
                 if (typeStack.empty()) throw runtime_error("Erro: operandos insuficientes.");
-                Type operand = typeStack.top(); typeStack.pop();
+                string operand = typeStack.top(); typeStack.pop();
 
-                if (operand != Type::Boolean) {
+                if (operand != "booleano") {
                     throw runtime_error("Erro: operador 'nao' requer booleano.");
                 }
 
                 // Resultado também é booleano
-                typeStack.push(Type::Boolean);
+                typeStack.push("booleano");
             }
         }
     }
@@ -291,6 +294,7 @@ Type SymbolTable::inferType(const vector<string>& postFixExpr) {
     // Retorna o tipo final
     return typeStack.top();
 }
+
 
 
 

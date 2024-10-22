@@ -93,8 +93,8 @@ int main() {
 
     std::cout << std::endl;
     try {
-        Type resultType = symbolTable.inferType(output);
-        if (resultType == Type::Integer) {
+        string resultType = symbolTable.inferType(output);
+        if (resultType == "inteiro") {
             cout << "O tipo da expressao: Inteiro." << endl;
         } else {
             cout << "O tipo da expressao: Booleano." << endl;

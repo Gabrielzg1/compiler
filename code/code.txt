@@ -21,6 +21,8 @@ fim;
 inicio
   leia(x);
   leia(y);
-  total := soma + 10 - 50 + soma2;
+  total := soma + 10 - 50;
+  total := ((soma + (x * 2 - y div 3)) > 10 e nao (y < 5 ou falso)) ou ((verdadeiro e (x * 4 = 0)) ou (nao (soma < 3 * (y + 1))));
+  total := soma; {verificar esse erro}
   escreva(total)
 fim.

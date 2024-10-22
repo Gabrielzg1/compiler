@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <stack>
+#include <vector>
 #include "Lexical/Lexical.h"
 #include "Token/Token.h"
 using namespace std;
@@ -38,9 +40,112 @@ void simpleExpressionAnalysis();
 
 void getNextToken() {
     cout << token.getTypeString() << endl;
-    //outputFile << token.getTypeString() << endl;
     token = lexer.getNextToken();
 }
+
+
+string inferType(const vector<string>& postFixExpr) {
+    stack<string> typeStack;
+
+    // Função auxiliar para verificar se o token é um operador
+    auto isOperator = [](const string& token) -> bool {
+        return token == "+" || token == "-" || token == "*" || token == "div" ||
+               token == "=" || token == "!=" || token == "<" || token == ">" ||
+               token == "<=" || token == ">=" || token == "e" || token == "ou" || token == "nao" ||
+               token == "+u" || token == "-u";
+    };
+
+    // Processa a expressão pós-fixada
+    for (const string& token : postFixExpr) {
+        if (!isOperator(token)) {
+            // Se for um operando (variável ou número), assume-se que é inteiro (I)
+            typeStack.push("inteiro");
+        } else {
+            if (token == "+" || token == "-" || token == "*" || token == "div") {
+                // Operadores aritméticos binários: ambos operandos devem ser inteiros
+                if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
+                string right = typeStack.top(); typeStack.pop();
+                string left = typeStack.top(); typeStack.pop();
+
+                if (right != "inteiro" || left != "inteiro") {
+                    throw runtime_error("Erro: operadores aritméticos requerem inteiros.");
+                }
+
+                // Resultado também é inteiro
+                typeStack.push("inteiro");
+
+            } else if (token == "+u" || token == "-u") {
+                // Operadores aritméticos unários: operando deve ser inteiro
+                if (typeStack.empty()) throw runtime_error("Erro: operandos insuficientes.");
+                string operand = typeStack.top(); typeStack.pop();
+
+                if (operand != "inteiro") {
+                    throw runtime_error("Erro: operadores unários requerem inteiros.");
+                }
+
+                // Resultado também é inteiro
+                typeStack.push("inteiro");
+
+            } else if (token == "=" || token == "!=" || token == "<" || token == ">" ||
+                       token == "<=" || token == ">=") {
+                // Operadores relacionais: ambos operandos devem ser inteiros
+                if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
+                string right = typeStack.top(); typeStack.pop();
+                string left = typeStack.top(); typeStack.pop();
+
+                if (right != "inteiro" || left != "inteiro") {
+                    throw runtime_error("Erro: operadores relacionais requerem inteiros.");
+                }
+
+                // Resultado é booleano
+                typeStack.push("booleano");
+
+            } else if (token == "e" || token == "ou") {
+                // Operadores lógicos binários: ambos operandos devem ser booleanos
+                if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
+                string right = typeStack.top(); typeStack.pop();
+                string left = typeStack.top(); typeStack.pop();
+
+                if (right != "booleano" || left != "booleano") {
+                    throw runtime_error("Erro: operadores lógicos requerem booleanos.");
+                }
+
+                // Resultado também é booleano
+                typeStack.push("booleano");
+
+            } else if (token == "nao") {
+                // Operador unário lógico: operando deve ser booleano
+                if (typeStack.empty()) throw runtime_error("Erro: operandos insuficientes.");
+                string operand = typeStack.top(); typeStack.pop();
+
+                if (operand != "booleano") {
+                    throw runtime_error("Erro: operador 'nao' requer booleano.");
+                }
+
+                // Resultado também é booleano
+                typeStack.push("booleano");
+            }
+        }
+    }
+
+    // Ao final, deve sobrar apenas um tipo na pilha
+    if (typeStack.size() != 1) throw runtime_error("Erro: expressão malformada.");
+
+    // Retorna o tipo final
+    return typeStack.top();
+}
+
+
+/*
+ *
+ *  Sintatico ----------------------------------------------
+ *
+ *
+ *
+ *
+ *
+ */
+
 
 void simpleExpressionAnalysis(){
     // Operador unario
@@ -76,7 +181,7 @@ void factorAnalysis() {
                 functionCallAnalysis();
             } else {
                 // Uso de vatiavel
-                if(!symboltable->isProcedure(token.getLexeme())){
+                if(!symboltable->isProcedureOrProgram(token.getLexeme())){
                     getNextToken();
                 } else
                     throw std::runtime_error("Procedimento usado indevidamente na linha: " + std::to_string(lexer.getCurrentLine()));
@@ -189,6 +294,8 @@ void atrib_chproc() {
 void ifAnalysis(){
     getNextToken();
     expressionAnalysis();
+
+
     if(token.getTypeString() == "sentao"){
         getNextToken();
         simpleCommand();
@@ -204,6 +311,8 @@ void ifAnalysis(){
 void whileAnalysis(){
     getNextToken();
     expressionAnalysis();
+
+
     if(token.getTypeString() == "sfaca"){
         getNextToken();
         simpleCommand();
