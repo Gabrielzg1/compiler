@@ -48,14 +48,25 @@ SymbolInfo* SymbolTable::peek() const {
 
 bool SymbolTable::containsVar(std::string name) const {
     Node* aux = top;
-    while (aux != nullptr && aux->symbolInfo != nullptr && aux->symbolInfo->scopeLevel != "L") {
-        if (aux->symbolInfo->name == name) {
+    while (aux != nullptr) {
+        // Se encontrar o scopeLevel "L", faça a verificação e interrompa o loop
+        if (aux->symbolInfo != nullptr && aux->symbolInfo->scopeLevel == "L") {
+            // Coloque a verificação específica aqui, por exemplo, verificar se o nome é igual
+            if (aux->symbolInfo->name == name) {
+                return true;
+            }
+            break; // Interrompe o loop ao encontrar o "L"
+        }
+
+        // Continue verificando se o nome corresponde
+        if (aux->symbolInfo != nullptr && aux->symbolInfo->name == name) {
             return true;
         }
         aux = aux->next;
     }
     return false;
 }
+
 
 bool SymbolTable::containsProcFunc(std::string name) const {
     Node* aux = top;

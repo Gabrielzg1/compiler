@@ -79,7 +79,7 @@ int main() {
 
     cout << endl << endl;
 
-    // -x + 7 * (y div 3) > 10
+    // -x + 7 * (y div 3) = 10
     vector<string> input = {
             "-u", "x", "+", "7", "*", "y", "(", "div", "3", ")", "=", "10"
     };
