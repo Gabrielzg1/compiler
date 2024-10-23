@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 SymbolTable::SymbolTable() : top(nullptr) {}
 
@@ -157,14 +158,14 @@ vector<string> SymbolTable::toPostFix(const vector<string>& input) {
 
     // Função para determinar a precedência de um operador
     auto precedence = [](const string& op) -> int {
-        if (op == "+u" || op == "-u") return 4;  // Precedência alta para operadores unários
-        if (op == "*" || op == "div") return 3;  // Multiplicação e divisão
-        if (op == "+" || op == "-") return 2;    // Adição e subtração binárias
-        if (op == "=" || op == "!=" || op == "<" || op == ">" || op == "<=" || op == ">=") return 1;
-        if (op == "nao") return 4;
-        if (op == "e") return 0;
-        if (op == "ou") return -1;
-        return -2;
+        if (op == "+u" || op == "-u") return 5;  // Precedência alta para operadores unários
+        if (op == "*" || op == "div") return 4;  // Multiplicação e divisão
+        if (op == "+" || op == "-") return 3;    // Adição e subtração binárias
+        if (op == "=" || op == "!=" || op == "<" || op == ">" || op == "<=" || op == ">=") return 2;
+        if (op == "nao") return 5;
+        if (op == "e") return 1;
+        if (op == "ou") return 0;
+        return -1;
     };
 
     // Função para verificar se o token é um operador
@@ -175,7 +176,6 @@ vector<string> SymbolTable::toPostFix(const vector<string>& input) {
                token == "+u" || token == "-u";  // Inclui operadores unários
     };
 
-    // Percorre a expressão infixa da esquerda para a direita
     for (size_t i = 0; i < input.size(); ++i) {
         const string& token = input[i];
 
@@ -195,7 +195,6 @@ vector<string> SymbolTable::toPostFix(const vector<string>& input) {
                 operators.pop();  // Remove o abre-parênteses da pilha
             }
         } else if (isOperator(token)) {
-            // Operadores já identificados como unários ou binários
             // Desempilha operadores com precedência maior ou igual antes de empilhar o atual
             while (!operators.empty() && operators.top() != "(" && precedence(operators.top()) >= precedence(token)) {
                 output.push_back(operators.top());
@@ -214,12 +213,10 @@ vector<string> SymbolTable::toPostFix(const vector<string>& input) {
     return output;
 }
 
-// Função para inferir o tipo da expressão
-// Função para inferir o tipo da expressão
+
 string SymbolTable::inferType(const vector<string>& postFixExpr) {
     stack<string> typeStack;
 
-    // Função auxiliar para verificar se o token é um operador
     auto isOperator = [](const string& token) -> bool {
         return token == "+" || token == "-" || token == "*" || token == "div" ||
                token == "=" || token == "!=" || token == "<" || token == ">" ||
@@ -227,90 +224,86 @@ string SymbolTable::inferType(const vector<string>& postFixExpr) {
                token == "+u" || token == "-u";
     };
 
-    // Processa a expressão pós-fixada
+    // Função para verificar se um token é um número
+    auto isNumber = [](const string& token) -> bool {
+        return !token.empty() && std::all_of(token.begin(), token.end(), ::isdigit);
+    };
+
     for (const string& token : postFixExpr) {
         if (!isOperator(token)) {
-            // Se for um operando (variável ou número), assume-se que é inteiro (I)
-            typeStack.push("inteiro");
+            if (isNumber(token)) {
+                // Se for um número, assume que é um inteiro
+                typeStack.push("inteiro");
+            } else if(token == "verdadeiro" || token == "falso") {
+                typeStack.push("booleano");
+            }
+            else {
+                // Caso contrário, deve ser um identificador e buscamos seu tipo
+                string type = this->getType(token);
+                if (type == "inteiro" || type == "booleano") {
+                    typeStack.push(type);
+                } else {
+                    throw runtime_error("Erro: tipo invalido para o token '" + token + "'.");
+                }
+            }
         } else {
             if (token == "+" || token == "-" || token == "*" || token == "div") {
-                // Operadores aritméticos binários: ambos operandos devem ser inteiros
-                if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
+                if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes para operador '" + token + "'.");
                 string right = typeStack.top(); typeStack.pop();
                 string left = typeStack.top(); typeStack.pop();
 
                 if (right != "inteiro" || left != "inteiro") {
-                    throw runtime_error("Erro: operadores aritméticos requerem inteiros.");
+                    throw runtime_error("Erro: operadores aritméticos '" + token + "' requerem inteiros.");
                 }
-
-                // Resultado também é inteiro
                 typeStack.push("inteiro");
 
             } else if (token == "+u" || token == "-u") {
-                // Operadores aritméticos unários: operando deve ser inteiro
-                if (typeStack.empty()) throw runtime_error("Erro: operandos insuficientes.");
+                if (typeStack.empty()) throw runtime_error("Erro: operando insuficiente para operador unário '" + token + "'.");
                 string operand = typeStack.top(); typeStack.pop();
 
                 if (operand != "inteiro") {
-                    throw runtime_error("Erro: operadores unários requerem inteiros.");
+                    throw runtime_error("Erro: operadores unários '" + token + "' requerem inteiros.");
                 }
-
-                // Resultado também é inteiro
                 typeStack.push("inteiro");
 
             } else if (token == "=" || token == "!=" || token == "<" || token == ">" ||
                        token == "<=" || token == ">=") {
-                // Operadores relacionais: ambos operandos devem ser inteiros
-                if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
+                if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes para operador relacional '" + token + "'.");
                 string right = typeStack.top(); typeStack.pop();
                 string left = typeStack.top(); typeStack.pop();
 
                 if (right != "inteiro" || left != "inteiro") {
-                    throw runtime_error("Erro: operadores relacionais requerem inteiros.");
+                    throw runtime_error("Erro: operadores relacionais '" + token + "' requerem inteiros.");
                 }
-
-                // Resultado é booleano
                 typeStack.push("booleano");
 
             } else if (token == "e" || token == "ou") {
-                // Operadores lógicos binários: ambos operandos devem ser booleanos
-                if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
+                if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes para operador lógico '" + token + "'.");
                 string right = typeStack.top(); typeStack.pop();
                 string left = typeStack.top(); typeStack.pop();
 
                 if (right != "booleano" || left != "booleano") {
-                    throw runtime_error("Erro: operadores lógicos requerem booleanos.");
+                    throw runtime_error("Erro: operadores lógicos '" + token + "' requerem booleanos.");
                 }
-
-                // Resultado também é booleano
                 typeStack.push("booleano");
 
             } else if (token == "nao") {
-                // Operador unário lógico: operando deve ser booleano
-                if (typeStack.empty()) throw runtime_error("Erro: operandos insuficientes.");
+                if (typeStack.empty()) throw runtime_error("Erro: operando insuficiente para operador 'nao'.");
                 string operand = typeStack.top(); typeStack.pop();
 
                 if (operand != "booleano") {
                     throw runtime_error("Erro: operador 'nao' requer booleano.");
                 }
-
-                // Resultado também é booleano
                 typeStack.push("booleano");
             }
         }
     }
 
-    // Ao final, deve sobrar apenas um tipo na pilha
     if (typeStack.size() != 1) throw runtime_error("Erro: expressão malformada.");
 
-    // Retorna o tipo final
     return typeStack.top();
 }
 
 
-
-
-
-// Ver precedencia MAIOR OU IGUAL
 
 

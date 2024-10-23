@@ -2,6 +2,7 @@
 #include <fstream>
 #include <stack>
 #include <vector>
+#include <algorithm>
 #include "Lexical/Lexical.h"
 #include "Token/Token.h"
 using namespace std;
@@ -55,21 +56,35 @@ string inferType(const vector<string>& postFixExpr) {
                token == "+u" || token == "-u";
     };
 
+    // Função para verificar se um token é um número
+    auto isNumber = [](const string& token) -> bool {
+        return !token.empty() && std::all_of(token.begin(), token.end(), ::isdigit);
+    };
+
     // Processa a expressão pós-fixada
     for (const string& expr : postFixExpr) {
         if (!isOperator(expr)) {
-            // Se for um operando (variável ou número), assume-se que é inteiro (I)
-            string type = symboltable->getType(expr);
-            typeStack.push(type);
+            if (isNumber(expr)) {
+                // Se for um número, assume que é um inteiro
+                typeStack.push("inteiro");
+            } else {
+                // Se for um identificador, busca o tipo na tabela de símbolos
+                string type = symboltable->getType(expr);
+                if (type == "inteiro" || type == "booleano") {
+                    typeStack.push(type);
+                } else {
+                    throw runtime_error("Tipo invalido para o token '" + expr + "'.");
+                }
+            }
         } else {
             if (expr == "+" || expr == "-" || expr == "*" || expr == "div") {
                 // Operadores aritméticos binários: ambos operandos devem ser inteiros
-                if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
+                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes.");
                 string right = typeStack.top(); typeStack.pop();
                 string left = typeStack.top(); typeStack.pop();
 
                 if (right != "inteiro" || left != "inteiro") {
-                    throw runtime_error("Erro: operadores aritméticos requerem inteiros.");
+                    throw runtime_error("Operadores aritmeticos requerem inteiros.");
                 }
 
                 // Resultado também é inteiro
@@ -77,11 +92,11 @@ string inferType(const vector<string>& postFixExpr) {
 
             } else if (expr == "+u" || expr == "-u") {
                 // Operadores aritméticos unários: operando deve ser inteiro
-                if (typeStack.empty()) throw runtime_error("Erro: operandos insuficientes.");
+                if (typeStack.empty()) throw runtime_error("Operandos insuficientes.");
                 string operand = typeStack.top(); typeStack.pop();
 
                 if (operand != "inteiro") {
-                    throw runtime_error("Erro: operadores unários requerem inteiros.");
+                    throw runtime_error("Operadores unarios requerem inteiros.");
                 }
 
                 // Resultado também é inteiro
@@ -90,12 +105,12 @@ string inferType(const vector<string>& postFixExpr) {
             } else if (expr == "=" || expr == "!=" || expr == "<" || expr == ">" ||
                        expr == "<=" || expr == ">=") {
                 // Operadores relacionais: ambos operandos devem ser inteiros
-                if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
+                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes.");
                 string right = typeStack.top(); typeStack.pop();
                 string left = typeStack.top(); typeStack.pop();
 
                 if (right != "inteiro" || left != "inteiro") {
-                    throw runtime_error("Erro: operadores relacionais requerem inteiros.");
+                    throw runtime_error("Operadores relacionais requerem inteiros.");
                 }
 
                 // Resultado é booleano
@@ -103,12 +118,12 @@ string inferType(const vector<string>& postFixExpr) {
 
             } else if (expr == "e" || expr == "ou") {
                 // Operadores lógicos binários: ambos operandos devem ser booleanos
-                if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
+                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes.");
                 string right = typeStack.top(); typeStack.pop();
                 string left = typeStack.top(); typeStack.pop();
 
                 if (right != "booleano" || left != "booleano") {
-                    throw runtime_error("Erro: operadores lógicos requerem booleanos.");
+                    throw runtime_error("Operadores logicos requerem booleanos.");
                 }
 
                 // Resultado também é booleano
@@ -116,11 +131,11 @@ string inferType(const vector<string>& postFixExpr) {
 
             } else if (expr == "nao") {
                 // Operador unário lógico: operando deve ser booleano
-                if (typeStack.empty()) throw runtime_error("Erro: operandos insuficientes.");
+                if (typeStack.empty()) throw runtime_error("Operandos insuficientes.");
                 string operand = typeStack.top(); typeStack.pop();
 
                 if (operand != "booleano") {
-                    throw runtime_error("Erro: operador 'nao' requer booleano.");
+                    throw runtime_error("Operador 'nao' requer booleano.");
                 }
 
                 // Resultado também é booleano
@@ -234,7 +249,7 @@ void readAnalysis(){
     if(token.getTypeString() == "sabre_parenteses"){
         getNextToken();
         if(token.getTypeString() == "sidentificador"){
-            if(symboltable->containsVar(token.getLexeme())){
+            if(symboltable->containsVar(token.getLexeme()) && symboltable->getType(token.getLexeme()) == "inteiro"){
                 /* Inserir Lógica de busca geracao de código -> pega a primeira ocorrencia da variavel
                  *
                  * /////
@@ -262,7 +277,7 @@ void writeAnalysis(){
     if(token.getTypeString() == "sabre_parenteses"){
         getNextToken();
         if(token.getTypeString() == "sidentificador"){
-            if(symboltable->containsVar(token.getLexeme())){
+            if(symboltable->containsVar(token.getLexeme()) && symboltable->getType(token.getLexeme()) == "inteiro"){
                 /* Inserir Lógica de busca geracao de código -> pega a primeira ocorrencia da variavel
                  *
                  * /////
