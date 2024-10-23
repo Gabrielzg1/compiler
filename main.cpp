@@ -56,12 +56,13 @@ string inferType(const vector<string>& postFixExpr) {
     };
 
     // Processa a expressão pós-fixada
-    for (const string& token : postFixExpr) {
-        if (!isOperator(token)) {
+    for (const string& expr : postFixExpr) {
+        if (!isOperator(expr)) {
             // Se for um operando (variável ou número), assume-se que é inteiro (I)
-            typeStack.push("inteiro");
+            string type = symboltable->getType(expr);
+            typeStack.push(type);
         } else {
-            if (token == "+" || token == "-" || token == "*" || token == "div") {
+            if (expr == "+" || expr == "-" || expr == "*" || expr == "div") {
                 // Operadores aritméticos binários: ambos operandos devem ser inteiros
                 if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
                 string right = typeStack.top(); typeStack.pop();
@@ -74,7 +75,7 @@ string inferType(const vector<string>& postFixExpr) {
                 // Resultado também é inteiro
                 typeStack.push("inteiro");
 
-            } else if (token == "+u" || token == "-u") {
+            } else if (expr == "+u" || expr == "-u") {
                 // Operadores aritméticos unários: operando deve ser inteiro
                 if (typeStack.empty()) throw runtime_error("Erro: operandos insuficientes.");
                 string operand = typeStack.top(); typeStack.pop();
@@ -86,8 +87,8 @@ string inferType(const vector<string>& postFixExpr) {
                 // Resultado também é inteiro
                 typeStack.push("inteiro");
 
-            } else if (token == "=" || token == "!=" || token == "<" || token == ">" ||
-                       token == "<=" || token == ">=") {
+            } else if (expr == "=" || expr == "!=" || expr == "<" || expr == ">" ||
+                       expr == "<=" || expr == ">=") {
                 // Operadores relacionais: ambos operandos devem ser inteiros
                 if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
                 string right = typeStack.top(); typeStack.pop();
@@ -100,7 +101,7 @@ string inferType(const vector<string>& postFixExpr) {
                 // Resultado é booleano
                 typeStack.push("booleano");
 
-            } else if (token == "e" || token == "ou") {
+            } else if (expr == "e" || expr == "ou") {
                 // Operadores lógicos binários: ambos operandos devem ser booleanos
                 if (typeStack.size() < 2) throw runtime_error("Erro: operandos insuficientes.");
                 string right = typeStack.top(); typeStack.pop();
@@ -113,7 +114,7 @@ string inferType(const vector<string>& postFixExpr) {
                 // Resultado também é booleano
                 typeStack.push("booleano");
 
-            } else if (token == "nao") {
+            } else if (expr == "nao") {
                 // Operador unário lógico: operando deve ser booleano
                 if (typeStack.empty()) throw runtime_error("Erro: operandos insuficientes.");
                 string operand = typeStack.top(); typeStack.pop();
@@ -177,7 +178,7 @@ void factorAnalysis() {
     if(token.getTypeString() == "sidentificador") {
         // ponto de atencao
         if(symboltable->containsProcFunc(token.getLexeme())){
-            if(symboltable->getFuncType(token.getLexeme()) == "funcao inteiro" || symboltable->getFuncType(token.getLexeme()) == "funcao booleano") {
+            if(symboltable->getType(token.getLexeme()) == "funcao inteiro" || symboltable->getType(token.getLexeme()) == "funcao booleano") {
                 functionCallAnalysis();
             } else {
                 // Uso de vatiavel
@@ -324,12 +325,7 @@ void whileAnalysis(){
 void simpleCommand(){
     if(token.getTypeString() == "sidentificador"){
         // ponto de atencao
-        if(!symboltable->isProcedureOrProgram(token.getLexeme())){
-            atrib_chproc();
-        } else {
-            throw std::runtime_error("Variavel usada indevidamente na linha: " + std::to_string(lexer.getCurrentLine()));
-        }
-
+        atrib_chproc();
     } else if (token.getTypeString() == "sse"){
         ifAnalysis();
     } else if (token.getTypeString() == "senquanto"){

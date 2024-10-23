@@ -11,7 +11,7 @@ fim;
 procedimento teste3;
 var teste: inteiro;
 inicio
-    teste3 := 0;
+    teste3 := soma;
 fim;
 
 inicio

@@ -33,10 +33,11 @@ public:
     void printStack() const;
     void cutStack();
     void assignTypeToFunction(const std::string& newType);
-    string getFuncType(const std::string& name);
     vector<string> toPostFix(const vector<string>& input);
     string inferType(const vector<string>& postFixExpr);
     bool isProcedureOrProgram(const std::string& name);
+    string getType(const std::string& name);
+
 
 
 private:

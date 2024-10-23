@@ -113,7 +113,8 @@ void SymbolTable::assignTypeToFunction(const std::string& newType) {
     }
 }
 
-string SymbolTable::getFuncType(const std::string& name) {
+
+string SymbolTable::getType(const std::string& name) {
     Node *current = top;
     while (current != nullptr) {
         if (current->symbolInfo->name == name) {

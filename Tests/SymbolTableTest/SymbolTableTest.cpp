@@ -55,7 +55,7 @@ int main() {
     std::cout << "\nChecking if 'var1' still exists after pruning: " << (symbolTable.containsVar("var1") ? "True" : "False") << std::endl;
     std::cout << "Checking if 'func1' still exists after pruning: " << (symbolTable.containsProcFunc("func1") ? "True" : "False") << std::endl;
 
-    std::cout << "Type of 'func1' is: " << symbolTable.getFuncType("func1") << std::endl;
+    std::cout << "Type of 'func1' is: " << symbolTable.getType("func1") << std::endl;
 
 
 
