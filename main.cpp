@@ -263,7 +263,7 @@ void readAnalysis(){
                 }
             }
             else {
-                throw std::runtime_error("Variavel nao declarada na linha: " + std::to_string(lexer.getCurrentLine()));
+                throw std::runtime_error("Variavel nao declarada ou tipo incompativel na linha: " + std::to_string(lexer.getCurrentLine()));
             }
 
         } else
@@ -290,7 +290,7 @@ void writeAnalysis(){
                     throw std::runtime_error("Erro de Sintaxe! Espera-se ')' na linha: " + std::to_string(lexer.getCurrentLine()));
                 }
             } else {
-                throw std::runtime_error("Variavel nao declarada na linha: " + std::to_string(lexer.getCurrentLine()));
+                throw std::runtime_error("Variavel nao declarada ou tipo incompativel na linha: " + std::to_string(lexer.getCurrentLine()));
             }
         } else
             throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
