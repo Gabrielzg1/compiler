@@ -324,7 +324,12 @@ void whileAnalysis(){
 void simpleCommand(){
     if(token.getTypeString() == "sidentificador"){
         // ponto de atencao
-        atrib_chproc();
+        if(!symboltable->isProcedureOrProgram(token.getLexeme())){
+            atrib_chproc();
+        } else {
+            throw std::runtime_error("Variavel usada indevidamente na linha: " + std::to_string(lexer.getCurrentLine()));
+        }
+
     } else if (token.getTypeString() == "sse"){
         ifAnalysis();
     } else if (token.getTypeString() == "senquanto"){

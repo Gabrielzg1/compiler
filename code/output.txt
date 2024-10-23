@@ -1,3 +1,2 @@
-
- ------ Compilado com sucesso! --------
-
+14
+Erro: Variavel usada indevidamente na linha: 14

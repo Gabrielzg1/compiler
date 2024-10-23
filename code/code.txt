@@ -1,28 +1,23 @@
 {este programa e o primeiro teste}
 programa teste;
 {}
-var x,y,total: inteiro;
+var x,y,soma: inteiro;
 
-funcao soma: booleano;
-var x, y, total: inteiro;
+funcao total: inteiro;
 inicio
-  total := x + y;
-  soma := total;
+    total := 0;
 fim;
 
-procedimento soma2;
-var x, y, total: inteiro;
+procedimento teste3;
+var teste: inteiro;
 inicio
-  total := x + y;
+    teste3 := 0;
 fim;
-
-
 
 inicio
   leia(x);
   leia(y);
   total := soma + 10 - 50;
-  total := ((soma + (x * 2 - y div 3)) > 10 e nao (y < 5 ou falso)) ou ((verdadeiro e (x * 4 = 0)) ou (nao (soma < 3 * (y + 1))));
   total := soma; {verificar esse erro}
   escreva(total)
 fim.
