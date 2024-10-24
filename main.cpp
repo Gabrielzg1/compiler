@@ -187,6 +187,7 @@ void procedureCallAnalysis(){
 void atribAnalysis(const string& type){
     cout << type << endl;
     getNextToken();
+    // Passar por referencia um vetor de string
     expressionAnalysis();
 }
 
@@ -323,6 +324,9 @@ void atrib_chproc() {
 
 void ifAnalysis(){
     getNextToken();
+
+    // Passar por referencia um vetor de string
+
     expressionAnalysis();
 
 
@@ -340,6 +344,9 @@ void ifAnalysis(){
 
 void whileAnalysis(){
     getNextToken();
+
+    // Passar por referencia um vetor de string
+
     expressionAnalysis();
 
 
