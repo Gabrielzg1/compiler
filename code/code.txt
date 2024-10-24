@@ -1,24 +1,11 @@
-{este programa e o primeiro teste}
-programa teste;
-{}
-var x,y,soma: inteiro;
-teste_bool: booleano;
+programa exemplo;
+var flag : booleano;
 
-funcao total: inteiro;
+procedimento imprimeMensagem;
 inicio
-    total := 0;
-fim;
-
-procedimento teste3;
-var teste: inteiro;
-inicio
-    teste3 := soma;
+    flag := imprimeMensagem;
 fim;
 
 inicio
-  leia(x);
-  leia(y);
-  total := soma + 10 - 50;
-  total := soma; {verificar esse erro}
-  escreva(x);
+    imprimeMensagem;
 fim.

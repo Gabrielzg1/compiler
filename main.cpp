@@ -31,7 +31,7 @@ void ifAnalysis();
 void whileAnalysis();
 void readAnalysis();
 void writeAnalysis();
-void atribAnalysis();
+void atribAnalysis(const string& type);
 void functionCallAnalysis();
 void expressionAnalysis();
 void termAnalysis();
@@ -40,7 +40,7 @@ void procedureCallAnalysis();
 void simpleExpressionAnalysis();
 
 void getNextToken() {
-    cout << token.getTypeString() << endl;
+    cout << token.getTypeString() + " -> " + token.getLexeme() << endl;
     token = lexer.getNextToken();
 }
 
@@ -184,7 +184,8 @@ void procedureCallAnalysis(){
     // Geracao de código
 }
 
-void atribAnalysis(){
+void atribAnalysis(const string& type){
+    cout << type << endl;
     getNextToken();
     expressionAnalysis();
 }
@@ -299,13 +300,26 @@ void writeAnalysis(){
 }
 
 void atrib_chproc() {
-    getNextToken();
+    // Verificar se a variável está declarada na tabela de símbolos
+    if (symboltable->containsProcFunc(token.getLexeme())) {
+        string type = symboltable->getType(token.getLexeme());
+        getNextToken();
 
-    if(token.getTypeString() == "satribuicao")
-        atribAnalysis();
-    else
-        procedureCallAnalysis();
+        // Verificar se é uma atribuição ou chamada de procedimento com base no tipo e token atual
+        if ((token.getTypeString() == "satribuicao") && (type == "inteiro" || type == "booleano")) {
+            atribAnalysis(type);
+        } else if (type == "procedimento") {
+            procedureCallAnalysis();
+        } else {
+            // Tipo inválido para atribuição ou chamada de procedimento
+            throw std::runtime_error("Tipo inválido na atribuição/chamada de procedimento na linha " + std::to_string(lexer.getCurrentLine()));
+        }
+    } else {
+        // Variável não declarada
+        throw std::runtime_error("Variavel nao declarada na linha " + std::to_string(lexer.getCurrentLine()));
+    }
 }
+
 
 void ifAnalysis(){
     getNextToken();
