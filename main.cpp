@@ -69,11 +69,15 @@ string inferType(const vector<string>& postFixExpr) {
                 typeStack.push("inteiro");
             } else {
                 // Se for um identificador, busca o tipo na tabela de símbolos
-                string type = symboltable->getType(expr);
-                if (type == "inteiro" || type == "booleano") {
-                    typeStack.push(type);
+                if(expr == "verdadeiro" || expr == "falso") {
+                    typeStack.push("booleano");
                 } else {
-                    throw runtime_error("Tipo invalido para o token '" + expr + "'.");
+                    string type = symboltable->getType(expr);
+                    if (type == "inteiro" || type == "booleano") {
+                        typeStack.push(type);
+                    } else {
+                        throw runtime_error("Tipo invalido para o token '" + expr + "'.");
+                    }
                 }
             }
         } else {
@@ -102,8 +106,20 @@ string inferType(const vector<string>& postFixExpr) {
                 // Resultado também é inteiro
                 typeStack.push("inteiro");
 
-            } else if (expr == "=" || expr == "!=" || expr == "<" || expr == ">" ||
-                       expr == "<=" || expr == ">=") {
+            } else if (expr == "=" || expr == "!=") {
+                // Operadores de igualdade: ambos operandos devem ser do mesmo tipo
+                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes.");
+                string right = typeStack.top(); typeStack.pop();
+                string left = typeStack.top(); typeStack.pop();
+
+                if (right != left) {
+                    throw runtime_error("Operadores de igualdade requerem operandos do mesmo tipo.");
+                }
+
+                // Resultado é booleano
+                typeStack.push("booleano");
+
+            } else if (expr == "<" || expr == ">" || expr == "<=" || expr == ">=") {
                 // Operadores relacionais: ambos operandos devem ser inteiros
                 if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes.");
                 string right = typeStack.top(); typeStack.pop();
@@ -150,6 +166,7 @@ string inferType(const vector<string>& postFixExpr) {
     // Retorna o tipo final
     return typeStack.top();
 }
+
 
 
 /*
@@ -199,7 +216,13 @@ void atribAnalysis(const string& type) {
 
     vector<string> postfix = symboltable->toPostFix(infixExpression);
 
+    for (const string& token : postfix) {
+        cout << token << " ";
+    }
+
     string expressionType = inferType(postfix);
+
+    cout << endl << expressionType << endl;
     if(expressionType != type){
         throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
     }
