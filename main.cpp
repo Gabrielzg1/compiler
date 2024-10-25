@@ -214,11 +214,14 @@ void atribAnalysis(const string& type) {
     std::vector<std::string> infixExpression;
     expressionAnalysis(infixExpression);
 
+
     vector<string> postfix = symboltable->toPostFix(infixExpression);
 
+    cout << "Posfixa: ";
     for (const string& token : postfix) {
         cout << token << " ";
     }
+    cout << endl;
 
     string expressionType = inferType(postfix);
 

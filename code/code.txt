@@ -4,7 +4,7 @@ flag : booleano;
 
 procedimento imprimeMensagem;
 inicio
-    flag := (x + 7 * 5 div (30+y) <= (x*a+2))e(z>0);
+    flag := (x + 7 * 5 div (30+y)) != 10;
 fim;
 
 inicio
