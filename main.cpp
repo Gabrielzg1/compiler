@@ -75,7 +75,12 @@ string inferType(const vector<string>& postFixExpr) {
                     string type = symboltable->getType(expr);
                     if (type == "inteiro" || type == "booleano") {
                         typeStack.push(type);
-                    } else {
+                    } else if (type == "funcao inteiro" ) {
+                        typeStack.push("inteiro");
+                    } else if (type == "funcao booleano"){
+                        typeStack.push("booleano");
+                    }
+                    else {
                         throw runtime_error("Tipo invalido para o token '" + expr + "'.");
                     }
                 }
@@ -221,11 +226,10 @@ void atribAnalysis(const string& type) {
     for (const string& token : postfix) {
         cout << token << " ";
     }
-    cout << endl;
 
     string expressionType = inferType(postfix);
 
-    cout << endl << expressionType << endl;
+    cout << "---> " << expressionType << endl;
     if(expressionType != type){
         throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
     }
@@ -303,7 +307,7 @@ void readAnalysis(){
     if(token.getTypeString() == "sabre_parenteses"){
         getNextToken();
         if(token.getTypeString() == "sidentificador"){
-            if(symboltable->containsVar(token.getLexeme()) && symboltable->getType(token.getLexeme()) == "inteiro"){
+            if(symboltable->containsProcFunc(token.getLexeme()) && symboltable->getType(token.getLexeme()) == "inteiro"){
                 /* Inserir Lógica de busca geracao de código -> pega a primeira ocorrencia da variavel
                  *
                  * /////
@@ -331,7 +335,7 @@ void writeAnalysis(){
     if(token.getTypeString() == "sabre_parenteses"){
         getNextToken();
         if(token.getTypeString() == "sidentificador"){
-            if(symboltable->containsVar(token.getLexeme()) && symboltable->getType(token.getLexeme()) == "inteiro"){
+            if(symboltable->containsProcFunc(token.getLexeme()) && symboltable->getType(token.getLexeme()) == "inteiro"){
                 /* Inserir Lógica de busca geracao de código -> pega a primeira ocorrencia da variavel
                  *
                  * /////
@@ -357,15 +361,20 @@ void atrib_chproc() {
     if (symboltable->containsProcFunc(token.getLexeme())) {
         string type = symboltable->getType(token.getLexeme());
         getNextToken();
-
+        if(type == "funcao inteiro"){
+            type = "inteiro";
+        }
+        else if(type == "funcao booleano"){
+            type = "booleano";
+        }
         // Verificar se é uma atribuição ou chamada de procedimento com base no tipo e token atual
-        if ((token.getTypeString() == "satribuicao") && (type == "inteiro" || type == "booleano")) {
+        if ((token.getTypeString() == "satribuicao") && (type == "inteiro" || type == "booleano" || type == "funcao inteiro" || type == "funcao booleano")) {
             atribAnalysis(type);
         } else if (type == "procedimento") {
             procedureCallAnalysis();
         } else {
             // Tipo inválido para atribuição ou chamada de procedimento
-            throw std::runtime_error("Tipo inválido na atribuição/chamada de procedimento na linha " + std::to_string(lexer.getCurrentLine()));
+            throw std::runtime_error("Tipo invalido na atribuição/chamada de procedimento na linha " + std::to_string(lexer.getCurrentLine()));
         }
     } else {
         // Variável não declarada
@@ -383,6 +392,12 @@ void ifAnalysis() {
     vector<string> postfix = symboltable->toPostFix(infixExpression);
 
     string expressionType = inferType(postfix);
+    cout << "Posfixa: ";
+    for (const string& token : postfix) {
+        cout << token << " ";
+    }
+    cout << "---> " << expressionType << endl;
+
     if(expressionType != "booleano"){
         throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
     }
@@ -406,8 +421,13 @@ void whileAnalysis() {
     std::vector<std::string> infixExpression;
     expressionAnalysis(infixExpression);
     vector<string> postfix = symboltable->toPostFix(infixExpression);
-
     string expressionType = inferType(postfix);
+
+    cout << "Posfixa: ";
+    for (const string& token : postfix) {
+        cout << token << " ";
+    }
+    cout << "---> " << expressionType << endl;
     if(expressionType != "booleano"){
         throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
     }
@@ -613,16 +633,16 @@ int main() {
                             outputFile << endl << " ------ Compilado com sucesso! --------" << endl << endl;
                             symboltable->printStack();
                         } else
-                            throw std::runtime_error("ERRO sintatico: " + std::to_string(lexer.getCurrentLine()));
+                            throw std::runtime_error("Simbolos invalidos apos o fim do programa na linha: " + std::to_string(lexer.getCurrentLine()));
                     } else {
-                        throw std::runtime_error("Erro de Sintaxe! Espera-se '.' na linha: " + std::to_string(lexer.getCurrentLine()));
+                        throw std::runtime_error("Espera-se '.' na linha: " + std::to_string(lexer.getCurrentLine()));
                     }
                 } else {
                     cout << 5 << endl;
-                    throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
+                    throw std::runtime_error("Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
                 }
             } else {
-                throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
+                throw std::runtime_error("Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
             }
         } else {
             throw std::runtime_error("Erro de Sintaxe! Espera-se 'programa' na linha: " + std::to_string(lexer.getCurrentLine()));
