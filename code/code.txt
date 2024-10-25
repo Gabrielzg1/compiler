@@ -1,9 +1,10 @@
 programa exemplo;
-var flag : booleano;
+var   a, y, z : inteiro;
+flag, x : booleano;
 
 procedimento imprimeMensagem;
 inicio
-    flag := imprimeMensagem;
+    flag := nao x;
 fim;
 
 inicio

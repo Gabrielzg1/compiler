@@ -33,14 +33,14 @@ void readAnalysis();
 void writeAnalysis();
 void atribAnalysis(const string& type);
 void functionCallAnalysis();
-void expressionAnalysis();
-void termAnalysis();
-void factorAnalysis();
+void expressionAnalysis(std::vector<std::string>& infixExpression);
+void termAnalysis(std::vector<std::string>& infixExpression);
+void factorAnalysis(std::vector<std::string>& infixExpression);
 void procedureCallAnalysis();
 void simpleExpressionAnalysis();
 
 void getNextToken() {
-    cout << token.getTypeString() + " -> " + token.getLexeme() << endl;
+    //cout << token.getTypeString() + " -> " + token.getLexeme() << endl;
     token = lexer.getNextToken();
 }
 
@@ -163,15 +163,21 @@ string inferType(const vector<string>& postFixExpr) {
  */
 
 
-void simpleExpressionAnalysis(){
-    // Operador unario
-    if(token.getTypeString() == "smais" || token.getTypeString() == "smenos"){
+void simpleExpressionAnalysis(std::vector<std::string>& infixExpression) {
+    if (token.getTypeString() == "smais" || token.getTypeString() == "smenos") {
+        // Adicionar operador unário ao vetor de expressão infix
+        if(token.getTypeString() == "smais")
+            infixExpression.push_back("+u");
+        else
+            infixExpression.push_back("-u");
         getNextToken();
     }
-    termAnalysis();
-    while(token.getTypeString() == "smais" || token.getTypeString() == "smenos" || token.getTypeString() == "sou"){
+    termAnalysis(infixExpression);
+    while (token.getTypeString() == "smais" || token.getTypeString() == "smenos" || token.getTypeString() == "sou") {
+        // Adicionar operador ao vetor de expressão infix
+        infixExpression.push_back(token.getLexeme());
         getNextToken();
-        termAnalysis();
+        termAnalysis(infixExpression);
     }
 }
 
@@ -184,65 +190,85 @@ void procedureCallAnalysis(){
     // Geracao de código
 }
 
-void atribAnalysis(const string& type){
-    cout << type << endl;
+void atribAnalysis(const string& type) {
     getNextToken();
-    // Passar por referencia um vetor de string
-    expressionAnalysis();
+
+    // Criar e passar por referência o vetor de strings para a expressão infix
+    std::vector<std::string> infixExpression;
+    expressionAnalysis(infixExpression);
+
+    vector<string> postfix = symboltable->toPostFix(infixExpression);
+
+    string expressionType = inferType(postfix);
+    if(expressionType != type){
+        throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
+    }
 }
 
-void factorAnalysis() {
-    if(token.getTypeString() == "sidentificador") {
-        // ponto de atencao
-        if(symboltable->containsProcFunc(token.getLexeme())){
-            if(symboltable->getType(token.getLexeme()) == "funcao inteiro" || symboltable->getType(token.getLexeme()) == "funcao booleano") {
+void factorAnalysis(std::vector<std::string>& infixExpression) {
+    if (token.getTypeString() == "sidentificador") {
+        if (symboltable->containsProcFunc(token.getLexeme())) {
+            if (symboltable->getType(token.getLexeme()) == "funcao inteiro" || symboltable->getType(token.getLexeme()) == "funcao booleano") {
+                infixExpression.push_back(token.getLexeme());
                 functionCallAnalysis();
             } else {
-                // Uso de vatiavel
-                if(!symboltable->isProcedureOrProgram(token.getLexeme())){
+                if (!symboltable->isProcedureOrProgram(token.getLexeme())) {
+                    // Adicionar variável ao vetor de expressão infix
+                    infixExpression.push_back(token.getLexeme());
                     getNextToken();
-                } else
+                } else {
                     throw std::runtime_error("Procedimento usado indevidamente na linha: " + std::to_string(lexer.getCurrentLine()));
+                }
             }
+        } else {
+            throw std::runtime_error("Variável não declarada na linha: " + std::to_string(lexer.getCurrentLine()));
         }
-        else
-            throw std::runtime_error("Variavel nao declarada na linha: " + std::to_string(lexer.getCurrentLine()));
-
     } else if (token.getTypeString() == "snumero") {
+        // Adicionar número ao vetor de expressão infix
+        infixExpression.push_back(token.getLexeme());
         getNextToken();
     } else if (token.getTypeString() == "snao") {
         getNextToken();
-        factorAnalysis();
+        infixExpression.push_back("nao");
+        factorAnalysis(infixExpression);
     } else if (token.getTypeString() == "sabre_parenteses") {
         getNextToken();
-        expressionAnalysis();
-        if(token.getTypeString() == "sfecha_parenteses") {
+        infixExpression.push_back("(");
+        expressionAnalysis(infixExpression);
+        if (token.getTypeString() == "sfecha_parenteses") {
+            infixExpression.push_back(")");
             getNextToken();
         } else {
             throw std::runtime_error("Erro de Sintaxe! Espera-se ')' na linha: " + std::to_string(lexer.getCurrentLine()));
         }
     } else if (token.getTypeString() == "sverdadeiro" || token.getTypeString() == "sfalso") {
+        // Adicionar verdadeiro ou falso ao vetor de expressão infix
+        infixExpression.push_back(token.getLexeme());
         getNextToken();
     } else {
         throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador', 'numero', 'nao' ou '(' na linha: " + std::to_string(lexer.getCurrentLine()));
     }
 }
 
-void termAnalysis() {
-    factorAnalysis();
-    while(token.getTypeString() == "smult" || token.getTypeString() == "sdiv" || token.getTypeString() == "se") {
+void termAnalysis(std::vector<std::string>& infixExpression) {
+    factorAnalysis(infixExpression);
+    while (token.getTypeString() == "smult" || token.getTypeString() == "sdiv" || token.getTypeString() == "se") {
+        // Adicionar operador ao vetor de expressão infix
+        infixExpression.push_back(token.getLexeme());
         getNextToken();
-        factorAnalysis();
+        factorAnalysis(infixExpression);
     }
 }
 
-void expressionAnalysis() {
-    simpleExpressionAnalysis();
-    if(token.getTypeString() == "smaior" || token.getTypeString() == "smaiorig" ||
-       token.getTypeString() == "sig" || token.getTypeString() == "smenor" ||
-       token.getTypeString() == "smenorig" || token.getTypeString() == "sdif") {
+void expressionAnalysis(std::vector<std::string>& infixExpression) {
+    simpleExpressionAnalysis(infixExpression);
+    if (token.getTypeString() == "smaior" || token.getTypeString() == "smaiorig" ||
+        token.getTypeString() == "sig" || token.getTypeString() == "smenor" ||
+        token.getTypeString() == "smenorig" || token.getTypeString() == "sdif") {
+        // Adicionar operador relacional ao vetor de expressão infix
+        infixExpression.push_back(token.getLexeme());
         getNextToken();
-        simpleExpressionAnalysis();
+        simpleExpressionAnalysis(infixExpression);
     }
 }
 
@@ -322,18 +348,23 @@ void atrib_chproc() {
 }
 
 
-void ifAnalysis(){
+void ifAnalysis() {
     getNextToken();
 
-    // Passar por referencia um vetor de string
+    // Criar e passar por referência o vetor de strings para a expressão infix
+    std::vector<std::string> infixExpression;
+    expressionAnalysis(infixExpression);
+    vector<string> postfix = symboltable->toPostFix(infixExpression);
 
-    expressionAnalysis();
+    string expressionType = inferType(postfix);
+    if(expressionType != "booleano"){
+        throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
+    }
 
-
-    if(token.getTypeString() == "sentao"){
+    if (token.getTypeString() == "sentao") {
         getNextToken();
         simpleCommand();
-        if(token.getTypeString() == "ssenao"){
+        if (token.getTypeString() == "ssenao") {
             getNextToken();
             simpleCommand();
         }
@@ -342,15 +373,20 @@ void ifAnalysis(){
     }
 }
 
-void whileAnalysis(){
+void whileAnalysis() {
     getNextToken();
 
-    // Passar por referencia um vetor de string
+    // Criar e passar por referência o vetor de strings para a expressão infix
+    std::vector<std::string> infixExpression;
+    expressionAnalysis(infixExpression);
+    vector<string> postfix = symboltable->toPostFix(infixExpression);
 
-    expressionAnalysis();
+    string expressionType = inferType(postfix);
+    if(expressionType != "booleano"){
+        throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
+    }
 
-
-    if(token.getTypeString() == "sfaca"){
+    if (token.getTypeString() == "sfaca") {
         getNextToken();
         simpleCommand();
     } else {

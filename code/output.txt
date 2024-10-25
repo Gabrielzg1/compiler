@@ -1,2 +1,3 @@
-6
-Erro: Procedimento usado indevidamente na linha: 6
+
+ ------ Compilado com sucesso! --------
+
