@@ -37,7 +37,7 @@ void expressionAnalysis(std::vector<std::string>& infixExpression);
 void termAnalysis(std::vector<std::string>& infixExpression);
 void factorAnalysis(std::vector<std::string>& infixExpression);
 void procedureCallAnalysis();
-void simpleExpressionAnalysis();
+void simpleExpressionAnalysis(std::vector<std::string>& infixExpression);
 
 void getNextToken() {
     //cout << token.getTypeString() + " -> " + token.getLexeme() << endl;
