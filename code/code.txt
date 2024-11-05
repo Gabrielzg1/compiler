@@ -43,5 +43,5 @@ inicio      {corpo principal}
   s:= soma;
   escreva(s)
 fim.
-.
+
 

@@ -1,2 +1,3 @@
-46
-Erro: Simbolos invalidos apos o fim do programa na linha: 46
+
+ ------ Compilado com sucesso! --------
+
