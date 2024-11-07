@@ -92,10 +92,12 @@ def parse_instruction(line):
         attribute2 = parts[2]
 
     return {
+        "label": label,  # Inclui label com valor None se não houver rótulo
         "instruction": instruction,
         "attribute1": attribute1,
         "attribute2": attribute2
     }
+
 
 def generate_json(file_path):
     instructions = []
