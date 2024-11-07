@@ -63,12 +63,16 @@ def run_compiler(code):
         # Verifica o arquivo de saída `output.txt`
         output_file_path = os.path.join(build_directory, "output.txt")
         if os.path.exists(output_file_path):
-            return output_file_path  # Retorna o caminho do arquivo de saída para leitura posterior
+            # Ler o conteúdo de output.txt e retornar
+            with open(output_file_path, "r") as output_file:
+                output_content = output_file.read().strip()
+            return {"message": "Execução concluída com sucesso.", "output": output_content}
         else:
             return {"errorLine": None, "message": "Arquivo output.txt não encontrado."}
 
     except Exception as e:
         return {"errorLine": 0, "message": f"Erro durante a execução: {str(e)}"}
+
 
 # Função para converter o conteúdo do arquivo em JSON conforme estrutura esperada
 def parse_instruction(line):
