@@ -73,9 +73,24 @@ def run_compiler(code):
 # Função para converter o conteúdo do arquivo em JSON conforme estrutura esperada
 def parse_instruction(line):
     parts = line.strip().split()
-    instruction = parts[0]
-    attribute1 = parts[1] if len(parts) > 1 else None
-    attribute2 = parts[2] if len(parts) > 2 else None
+    label = None
+    instruction = None
+    attribute1 = None
+    attribute2 = None
+
+    # Verifica se o primeiro item é um rótulo numérico
+    if parts[0].isdigit():
+        label = parts[0]
+        parts = parts[1:]  # Remove o rótulo da lista de partes
+
+    # Define a instrução e os atributos restantes
+    if len(parts) > 0:
+        instruction = parts[0]
+    if len(parts) > 1:
+        attribute1 = parts[1]
+    if len(parts) > 2:
+        attribute2 = parts[2]
+
     return {
         "instruction": instruction,
         "attribute1": attribute1,
@@ -86,11 +101,12 @@ def generate_json(file_path):
     instructions = []
     with open(file_path, "r") as file:
         for index, line in enumerate(file):
-            if line.strip():
+            if line.strip():  # Ignora linhas vazias
                 parsed_instruction = parse_instruction(line)
-                # Adiciona a linha com a ordem desejada
+                # Adiciona a linha com os campos mapeados corretamente
                 instructions.append({
                     "line": index + 1,
+                    "label": parsed_instruction["label"],
                     "instruction": parsed_instruction["instruction"],
                     "attribute1": parsed_instruction["attribute1"],
                     "attribute2": parsed_instruction["attribute2"],
@@ -109,7 +125,7 @@ def compile_code():
         return jsonify({"errorLine": 0, "message": "Nenhum código fornecido"}), 400
 
     result = run_compiler(code)
-
+    print(code)
     # Se o compilador retornar um erro, ele já será um dicionário com `errorLine` e `message`
     if isinstance(result, dict):
         return jsonify(result)

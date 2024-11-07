@@ -1,13 +1,25 @@
-import json
-
 def parse_instruction(line):
-    # Divide a linha nos elementos separados por espaços
     parts = line.strip().split()
-    instruction = parts[0]
-    # Atribui os atributos ou `None` se não houver
-    attribute1 = parts[1] if len(parts) > 1 else None
-    attribute2 = parts[2] if len(parts) > 2 else None
+    label = None
+    instruction = None
+    attribute1 = None
+    attribute2 = None
+
+    # Verifica se o primeiro item é um rótulo numérico
+    if parts[0].isdigit():
+        label = parts[0]
+        parts = parts[1:]  # Remove o rótulo da lista de partes
+
+    # Define a instrução e os atributos restantes
+    if len(parts) > 0:
+        instruction = parts[0]
+    if len(parts) > 1:
+        attribute1 = parts[1]
+    if len(parts) > 2:
+        attribute2 = parts[2]
+
     return {
+        "label": label,
         "instruction": instruction,
         "attribute1": attribute1,
         "attribute2": attribute2
@@ -15,25 +27,21 @@ def parse_instruction(line):
 
 def generate_json(file_path):
     instructions = []
-    # Lê o arquivo linha por linha
     with open(file_path, "r") as file:
         for index, line in enumerate(file):
-            # Ignora linhas vazias
-            if line.strip():
+            if line.strip():  # Ignora linhas vazias
                 parsed_instruction = parse_instruction(line)
-                # Adiciona o número da linha ao objeto de instrução
-                instructions.append({"line": index + 1, **parsed_instruction})
+                # Adiciona a linha com os campos mapeados corretamente
+                instructions.append({
+                    "line": index + 1,
+                    "label": parsed_instruction["label"],
+                    "instruction": parsed_instruction["instruction"],
+                    "attribute1": parsed_instruction["attribute1"],
+                    "attribute2": parsed_instruction["attribute2"],
+                })
 
-    # Converte a lista de instruções em JSON
-    instructions_json = json.dumps({"instructions": instructions}, indent=4)
-    return instructions_json
+    return {"instructions": instructions}
 
-# Caminho do arquivo
-file_path = "test.txt"  # Altere para o nome do seu arquivo
-instructions_json = generate_json(file_path)
-
-# Exibe ou salva o JSON em um arquivo
-print(instructions_json)
-# Para salvar em um arquivo:
-with open("instructions.json", "w") as json_file:
-    json_file.write(instructions_json)
+# Exemplo de uso
+output = generate_json("test.txt")
+print(output)
