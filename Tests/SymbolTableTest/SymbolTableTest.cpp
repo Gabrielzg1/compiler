@@ -1,50 +1,56 @@
 // Tests/SymbolTableTest/SymbolTableTest.cpp
 #include "../../SymbolTable/SymbolTable.h"
 #include <iostream>
+#include <string>
+#include <vector>
 
 int main() {
     SymbolTable symbolTable;
 
-    // Empilhar alguns símbolos
-    std::cout << "Pushing symbols onto the stack..." << std::endl;
-    symbolTable.push("Nome do programa", "", "programa", "");
-    symbolTable.push("var1", "", "var", "");
-    symbolTable.push("var2", "", "var", "");
-    symbolTable.push("proc1", "L", "proc", "");
-    symbolTable.push("var3", "", "var", "");
-    symbolTable.push("func1", "L", "func", "");
-    symbolTable.push("var6", "", "var", "");
-    symbolTable.push("var7", "", "var", "");
-    symbolTable.push("var8", "", "var", "");
-    symbolTable.push("var9", "", "var", "");
+    // Inserindo alguns símbolos na tabela para testar
+    symbolTable.push("x", "", "inteiro", "0x003");
+    symbolTable.push("y", "", "inteiro", "0x002");
+    symbolTable.push("z", "", "booleano", "0x004");
 
-    // Imprimir a pilha atual
-    std::cout << "Stack after pushing symbols:" << std::endl;
-    symbolTable.printStack();
+    // Teste de `getType`
+    std::cout << "Teste de getType:" << std::endl;
 
-    // Verificar se algumas variáveis e funções estão na pilha
-    std::cout << "\nChecking if 'var1' exists in the scope: " << symbolTable.containsVar("var1") << std::endl;
-    std::cout << "Checking if 'func1' exists in the stack: " << symbolTable.containsProcFunc("func1") << std::endl;
+    std::string typeX = symbolTable.getType("x");
+    std::cout << "Tipo de 'x': " << (typeX.empty() ? "Não encontrado" : typeX) << std::endl;
 
-    // Atribuir um novo tipo às variáveis
-    std::cout << "\nAssigning new type to variables (changing 'var' to 'int')..." << std::endl;
-    symbolTable.assignTypeToVariables("int");
+    std::string typeY = symbolTable.getType("y");
+    std::cout << "Tipo de 'y': " << (typeY.empty() ? "Não encontrado" : typeY) << std::endl;
 
-    // Imprimir a pilha novamente para ver as mudanças
-    std::cout << "\nStack after assigning new types to variables:" << std::endl;
-    symbolTable.printStack();
+    std::string typeZ = symbolTable.getType("z");
+    std::cout << "Tipo de 'z': " << (typeZ.empty() ? "Não encontrado" : typeZ) << std::endl;
 
-    // Fazer a poda da pilha, removendo elementos até encontrar o "L"
-    std::cout << "\nPruning the stack until the first 'L' scope level..." << std::endl;
-    symbolTable.cutStack();
+    std::string typeW = symbolTable.getType("w");
+    std::cout << "Tipo de 'w' (não existe): " << (typeW.empty() ? "Não encontrado" : typeW) << std::endl;
 
-    std::cout << "\nPruning the stack until the first 'L' scope level..." << std::endl;
-    symbolTable.cutStack();
+    // Teste de expressão pós-fixa
+    // -x + 7 * (y div 3)
+    std::vector<std::string> input = {
+            "-u", "x", "+", "7", "*", "y", "(", "div", "3", ")"
+    };
 
+    std::vector<std::string> output = symbolTable.toPostFix(input);
 
-    // Imprimir a pilha novamente após a poda
-    std::cout << "\nStack after pruning:" << std::endl;
-    symbolTable.printStack();
+    std::cout << "Posfixa: ";
+    for (const std::string& token : output) {
+        std::cout << token << " ";
+    }
+
+    std::cout << std::endl;
+    try {
+        std::string resultType = symbolTable.inferType(output);
+        if (resultType == "inteiro") {
+            std::cout << "O tipo da expressao: Inteiro." << std::endl;
+        } else {
+            std::cout << "O tipo da expressao: Booleano." << std::endl;
+        }
+    } catch (const std::exception& ex) {
+        std::cout << "Erro: " << ex.what() << std::endl;
+    }
 
     return 0;
 }

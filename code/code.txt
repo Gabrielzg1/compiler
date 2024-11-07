@@ -16,7 +16,7 @@ programa test;
 var a,b,s: inteiro;
 
  funcao soma: inteiro;
- var c,y,u: inteiro;
+ var c,y,s: inteiro;
      z: booleano;
   procedimento ler;
   inicio

@@ -1,5 +1,8 @@
 #include <iostream>
 #include <fstream>
+#include <stack>
+#include <vector>
+#include <algorithm>
 #include "Lexical/Lexical.h"
 #include "Token/Token.h"
 using namespace std;
@@ -8,6 +11,7 @@ using namespace std;
 Lexical lexer("code.txt");
 SymbolTable* symboltable = new SymbolTable();
 Token token = lexer.getNextToken();
+vector<string> auxiliar;
 
 // Arquivo de saída para salvar os resultados
 ofstream outputFile("output.txt");
@@ -27,81 +31,274 @@ void ifAnalysis();
 void whileAnalysis();
 void readAnalysis();
 void writeAnalysis();
-void atribAnalysis();
+void atribAnalysis(const string& type);
 void functionCallAnalysis();
-void expressionAnalysis();
-void termAnalysis();
-void factorAnalysis();
+void expressionAnalysis(std::vector<std::string>& infixExpression);
+void termAnalysis(std::vector<std::string>& infixExpression);
+void factorAnalysis(std::vector<std::string>& infixExpression);
 void procedureCallAnalysis();
-void simpleExpressionAnalysis();
+void simpleExpressionAnalysis(std::vector<std::string>& infixExpression);
 
 void getNextToken() {
-    cout << token.getTypeString() << endl;
-    //outputFile << token.getTypeString() << endl;
+    //cout << token.getTypeString() + " -> " + token.getLexeme() << endl;
     token = lexer.getNextToken();
 }
 
-void simpleExpressionAnalysis(){
-    if(token.getTypeString() == "smais" || token.getTypeString() == "smenos"){
+
+string inferType(const vector<string>& postFixExpr) {
+    stack<string> typeStack;
+
+    // Função auxiliar para verificar se o token é um operador
+    auto isOperator = [](const string& token) -> bool {
+        return token == "+" || token == "-" || token == "*" || token == "div" ||
+               token == "=" || token == "!=" || token == "<" || token == ">" ||
+               token == "<=" || token == ">=" || token == "e" || token == "ou" || token == "nao" ||
+               token == "+u" || token == "-u";
+    };
+
+    // Função para verificar se um token é um número
+    auto isNumber = [](const string& token) -> bool {
+        return !token.empty() && std::all_of(token.begin(), token.end(), ::isdigit);
+    };
+
+    // Processa a expressão pós-fixada
+    for (const string& expr : postFixExpr) {
+        if (!isOperator(expr)) {
+            if (isNumber(expr)) {
+                // Se for um número, assume que é um inteiro
+                typeStack.push("inteiro");
+            } else {
+                // Se for um identificador, busca o tipo na tabela de símbolos
+                if(expr == "verdadeiro" || expr == "falso") {
+                    typeStack.push("booleano");
+                } else {
+                    string type = symboltable->getType(expr);
+                    if (type == "inteiro" || type == "booleano") {
+                        typeStack.push(type);
+                    } else if (type == "funcao inteiro" ) {
+                        typeStack.push("inteiro");
+                    } else if (type == "funcao booleano"){
+                        typeStack.push("booleano");
+                    }
+                    else {
+                        throw runtime_error("Tipo invalido para o token '" + expr + "'.");
+                    }
+                }
+            }
+        } else {
+            if (expr == "+" || expr == "-" || expr == "*" || expr == "div") {
+                // Operadores aritméticos binários: ambos operandos devem ser inteiros
+                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes.");
+                string right = typeStack.top(); typeStack.pop();
+                string left = typeStack.top(); typeStack.pop();
+
+                if (right != "inteiro" || left != "inteiro") {
+                    throw runtime_error("Operadores aritmeticos requerem inteiros.");
+                }
+
+                // Resultado também é inteiro
+                typeStack.push("inteiro");
+
+            } else if (expr == "+u" || expr == "-u") {
+                // Operadores aritméticos unários: operando deve ser inteiro
+                if (typeStack.empty()) throw runtime_error("Operandos insuficientes.");
+                string operand = typeStack.top(); typeStack.pop();
+
+                if (operand != "inteiro") {
+                    throw runtime_error("Operadores unarios requerem inteiros.");
+                }
+
+                // Resultado também é inteiro
+                typeStack.push("inteiro");
+
+            } else if (expr == "=" || expr == "!=") {
+                // Operadores de igualdade: ambos operandos devem ser do mesmo tipo
+                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes.");
+                string right = typeStack.top(); typeStack.pop();
+                string left = typeStack.top(); typeStack.pop();
+
+                if (right != left) {
+                    throw runtime_error("Operadores de igualdade requerem operandos do mesmo tipo.");
+                }
+
+                // Resultado é booleano
+                typeStack.push("booleano");
+
+            } else if (expr == "<" || expr == ">" || expr == "<=" || expr == ">=") {
+                // Operadores relacionais: ambos operandos devem ser inteiros
+                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes.");
+                string right = typeStack.top(); typeStack.pop();
+                string left = typeStack.top(); typeStack.pop();
+
+                if (right != "inteiro" || left != "inteiro") {
+                    throw runtime_error("Operadores relacionais requerem inteiros.");
+                }
+
+                // Resultado é booleano
+                typeStack.push("booleano");
+
+            } else if (expr == "e" || expr == "ou") {
+                // Operadores lógicos binários: ambos operandos devem ser booleanos
+                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes.");
+                string right = typeStack.top(); typeStack.pop();
+                string left = typeStack.top(); typeStack.pop();
+
+                if (right != "booleano" || left != "booleano") {
+                    throw runtime_error("Operadores logicos requerem booleanos.");
+                }
+
+                // Resultado também é booleano
+                typeStack.push("booleano");
+
+            } else if (expr == "nao") {
+                // Operador unário lógico: operando deve ser booleano
+                if (typeStack.empty()) throw runtime_error("Operandos insuficientes.");
+                string operand = typeStack.top(); typeStack.pop();
+
+                if (operand != "booleano") {
+                    throw runtime_error("Operador 'nao' requer booleano.");
+                }
+
+                // Resultado também é booleano
+                typeStack.push("booleano");
+            }
+        }
+    }
+
+    // Ao final, deve sobrar apenas um tipo na pilha
+    if (typeStack.size() != 1) throw runtime_error("Erro: expressão malformada.");
+
+    // Retorna o tipo final
+    return typeStack.top();
+}
+
+
+
+/*
+ *
+ *  Sintatico ----------------------------------------------
+ *
+ *
+ *
+ *
+ *
+ */
+
+
+void simpleExpressionAnalysis(std::vector<std::string>& infixExpression) {
+    if (token.getTypeString() == "smais" || token.getTypeString() == "smenos") {
+        // Adicionar operador unário ao vetor de expressão infix
+        if(token.getTypeString() == "smais")
+            infixExpression.push_back("+u");
+        else
+            infixExpression.push_back("-u");
         getNextToken();
     }
-    termAnalysis();
-    while(token.getTypeString() == "smais" || token.getTypeString() == "smenos" || token.getTypeString() == "sou"){
+    termAnalysis(infixExpression);
+    while (token.getTypeString() == "smais" || token.getTypeString() == "smenos" || token.getTypeString() == "sou") {
+        // Adicionar operador ao vetor de expressão infix
+        infixExpression.push_back(token.getLexeme());
         getNextToken();
-        termAnalysis();
+        termAnalysis(infixExpression);
     }
 }
 
 void functionCallAnalysis() {
+    // Alterar na geracao de código
     getNextToken();
 }
 
 void procedureCallAnalysis(){
+    // Geracao de código
 }
 
-void atribAnalysis(){
+void atribAnalysis(const string& type) {
     getNextToken();
-    expressionAnalysis();
+
+    // Criar e passar por referência o vetor de strings para a expressão infix
+    std::vector<std::string> infixExpression;
+    expressionAnalysis(infixExpression);
+
+
+    vector<string> postfix = symboltable->toPostFix(infixExpression);
+
+    cout << "Posfixa: ";
+    for (const string& token : postfix) {
+        cout << token << " ";
+    }
+
+    string expressionType = inferType(postfix);
+
+    cout << "---> " << expressionType << endl;
+    if(expressionType != type){
+        throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
+    }
 }
 
-void factorAnalysis() {
-    if(token.getTypeString() == "sidentificador") {
-        functionCallAnalysis();
+void factorAnalysis(std::vector<std::string>& infixExpression) {
+    if (token.getTypeString() == "sidentificador") {
+        if (symboltable->containsProcFunc(token.getLexeme())) {
+            if (symboltable->getType(token.getLexeme()) == "funcao inteiro" || symboltable->getType(token.getLexeme()) == "funcao booleano") {
+                infixExpression.push_back(token.getLexeme());
+                functionCallAnalysis();
+            } else {
+                if (!symboltable->isProcedureOrProgram(token.getLexeme())) {
+                    // Adicionar variável ao vetor de expressão infix
+                    infixExpression.push_back(token.getLexeme());
+                    getNextToken();
+                } else {
+                    throw std::runtime_error("Procedimento usado indevidamente na linha: " + std::to_string(lexer.getCurrentLine()));
+                }
+            }
+        } else {
+            throw std::runtime_error("Variável não declarada na linha: " + std::to_string(lexer.getCurrentLine()));
+        }
     } else if (token.getTypeString() == "snumero") {
+        // Adicionar número ao vetor de expressão infix
+        infixExpression.push_back(token.getLexeme());
         getNextToken();
     } else if (token.getTypeString() == "snao") {
         getNextToken();
-        factorAnalysis();
+        infixExpression.push_back("nao");
+        factorAnalysis(infixExpression);
     } else if (token.getTypeString() == "sabre_parenteses") {
         getNextToken();
-        expressionAnalysis();
-        if(token.getTypeString() == "sfecha_parenteses") {
+        infixExpression.push_back("(");
+        expressionAnalysis(infixExpression);
+        if (token.getTypeString() == "sfecha_parenteses") {
+            infixExpression.push_back(")");
             getNextToken();
         } else {
             throw std::runtime_error("Erro de Sintaxe! Espera-se ')' na linha: " + std::to_string(lexer.getCurrentLine()));
         }
     } else if (token.getTypeString() == "sverdadeiro" || token.getTypeString() == "sfalso") {
+        // Adicionar verdadeiro ou falso ao vetor de expressão infix
+        infixExpression.push_back(token.getLexeme());
         getNextToken();
     } else {
         throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador', 'numero', 'nao' ou '(' na linha: " + std::to_string(lexer.getCurrentLine()));
     }
 }
 
-void termAnalysis() {
-    factorAnalysis();
-    while(token.getTypeString() == "smult" || token.getTypeString() == "sdiv" || token.getTypeString() == "se") {
+void termAnalysis(std::vector<std::string>& infixExpression) {
+    factorAnalysis(infixExpression);
+    while (token.getTypeString() == "smult" || token.getTypeString() == "sdiv" || token.getTypeString() == "se") {
+        // Adicionar operador ao vetor de expressão infix
+        infixExpression.push_back(token.getLexeme());
         getNextToken();
-        factorAnalysis();
+        factorAnalysis(infixExpression);
     }
 }
 
-void expressionAnalysis() {
-    simpleExpressionAnalysis();
-    if(token.getTypeString() == "smaior" || token.getTypeString() == "smaiorig" ||
-       token.getTypeString() == "sig" || token.getTypeString() == "smenor" ||
-       token.getTypeString() == "smenorig" || token.getTypeString() == "sdif") {
+void expressionAnalysis(std::vector<std::string>& infixExpression) {
+    simpleExpressionAnalysis(infixExpression);
+    if (token.getTypeString() == "smaior" || token.getTypeString() == "smaiorig" ||
+        token.getTypeString() == "sig" || token.getTypeString() == "smenor" ||
+        token.getTypeString() == "smenorig" || token.getTypeString() == "sdif") {
+        // Adicionar operador relacional ao vetor de expressão infix
+        infixExpression.push_back(token.getLexeme());
         getNextToken();
-        simpleExpressionAnalysis();
+        simpleExpressionAnalysis(infixExpression);
     }
 }
 
@@ -110,12 +307,23 @@ void readAnalysis(){
     if(token.getTypeString() == "sabre_parenteses"){
         getNextToken();
         if(token.getTypeString() == "sidentificador"){
-            getNextToken();
-            if(token.getTypeString() == "sfecha_parenteses"){
+            if(symboltable->containsProcFunc(token.getLexeme()) && symboltable->getType(token.getLexeme()) == "inteiro"){
+                /* Inserir Lógica de busca geracao de código -> pega a primeira ocorrencia da variavel
+                 *
+                 * /////
+                 *
+                */
                 getNextToken();
-            } else {
-                throw std::runtime_error("Erro de Sintaxe! Espera-se ')' na linha: " + std::to_string(lexer.getCurrentLine()));
+                if(token.getTypeString() == "sfecha_parenteses"){
+                    getNextToken();
+                } else {
+                    throw std::runtime_error("Erro de Sintaxe! Espera-se ')' na linha: " + std::to_string(lexer.getCurrentLine()));
+                }
             }
+            else {
+                throw std::runtime_error("Variavel nao declarada ou tipo incompativel na linha: " + std::to_string(lexer.getCurrentLine()));
+            }
+
         } else
             throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
     } else
@@ -127,11 +335,20 @@ void writeAnalysis(){
     if(token.getTypeString() == "sabre_parenteses"){
         getNextToken();
         if(token.getTypeString() == "sidentificador"){
-            getNextToken();
-            if(token.getTypeString() == "sfecha_parenteses"){
+            if(symboltable->containsProcFunc(token.getLexeme()) && symboltable->getType(token.getLexeme()) == "inteiro"){
+                /* Inserir Lógica de busca geracao de código -> pega a primeira ocorrencia da variavel
+                 *
+                 * /////
+                 *
+                */
                 getNextToken();
+                if(token.getTypeString() == "sfecha_parenteses"){
+                    getNextToken();
+                } else {
+                    throw std::runtime_error("Erro de Sintaxe! Espera-se ')' na linha: " + std::to_string(lexer.getCurrentLine()));
+                }
             } else {
-                throw std::runtime_error("Erro de Sintaxe! Espera-se ')' na linha: " + std::to_string(lexer.getCurrentLine()));
+                throw std::runtime_error("Variavel nao declarada ou tipo incompativel na linha: " + std::to_string(lexer.getCurrentLine()));
             }
         } else
             throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
@@ -140,21 +357,55 @@ void writeAnalysis(){
 }
 
 void atrib_chproc() {
-    getNextToken();
-
-    if(token.getTypeString() == "satribuicao")
-        atribAnalysis();
-    else
-        procedureCallAnalysis();
+    // Verificar se a variável está declarada na tabela de símbolos
+    if (symboltable->containsProcFunc(token.getLexeme())) {
+        string type = symboltable->getType(token.getLexeme());
+        getNextToken();
+        if(type == "funcao inteiro"){
+            type = "inteiro";
+        }
+        else if(type == "funcao booleano"){
+            type = "booleano";
+        }
+        // Verificar se é uma atribuição ou chamada de procedimento com base no tipo e token atual
+        if ((token.getTypeString() == "satribuicao") && (type == "inteiro" || type == "booleano" || type == "funcao inteiro" || type == "funcao booleano")) {
+            atribAnalysis(type);
+        } else if (type == "procedimento") {
+            procedureCallAnalysis();
+        } else {
+            // Tipo inválido para atribuição ou chamada de procedimento
+            throw std::runtime_error("Tipo invalido na atribuição/chamada de procedimento na linha " + std::to_string(lexer.getCurrentLine()));
+        }
+    } else {
+        // Variável não declarada
+        throw std::runtime_error("Variavel nao declarada na linha " + std::to_string(lexer.getCurrentLine()));
+    }
 }
 
-void ifAnalysis(){
+
+void ifAnalysis() {
     getNextToken();
-    expressionAnalysis();
-    if(token.getTypeString() == "sentao"){
+
+    // Criar e passar por referência o vetor de strings para a expressão infix
+    std::vector<std::string> infixExpression;
+    expressionAnalysis(infixExpression);
+    vector<string> postfix = symboltable->toPostFix(infixExpression);
+
+    string expressionType = inferType(postfix);
+    cout << "Posfixa: ";
+    for (const string& token : postfix) {
+        cout << token << " ";
+    }
+    cout << "---> " << expressionType << endl;
+
+    if(expressionType != "booleano"){
+        throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
+    }
+
+    if (token.getTypeString() == "sentao") {
         getNextToken();
         simpleCommand();
-        if(token.getTypeString() == "ssenao"){
+        if (token.getTypeString() == "ssenao") {
             getNextToken();
             simpleCommand();
         }
@@ -163,10 +414,25 @@ void ifAnalysis(){
     }
 }
 
-void whileAnalysis(){
+void whileAnalysis() {
     getNextToken();
-    expressionAnalysis();
-    if(token.getTypeString() == "sfaca"){
+
+    // Criar e passar por referência o vetor de strings para a expressão infix
+    std::vector<std::string> infixExpression;
+    expressionAnalysis(infixExpression);
+    vector<string> postfix = symboltable->toPostFix(infixExpression);
+    string expressionType = inferType(postfix);
+
+    cout << "Posfixa: ";
+    for (const string& token : postfix) {
+        cout << token << " ";
+    }
+    cout << "---> " << expressionType << endl;
+    if(expressionType != "booleano"){
+        throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
+    }
+
+    if (token.getTypeString() == "sfaca") {
         getNextToken();
         simpleCommand();
     } else {
@@ -176,6 +442,7 @@ void whileAnalysis(){
 
 void simpleCommand(){
     if(token.getTypeString() == "sidentificador"){
+        // ponto de atencao
         atrib_chproc();
     } else if (token.getTypeString() == "sse"){
         ifAnalysis();
@@ -213,39 +480,54 @@ void commandsAnalysis() {
 void analysisFunction() {
     getNextToken();
     if (token.getTypeString() == "sidentificador") {
-        getNextToken();
-        if(token.getTypeString() == "sdoispontos"){
+        if(!symboltable->containsProcFunc(token.getLexeme())){
+            symboltable->push(token.getLexeme(), "L", "function", "");
             getNextToken();
-            if(token.getTypeString() == "sinteiro" || token.getTypeString() == "sbooleano"){
+            if(token.getTypeString() == "sdoispontos"){
                 getNextToken();
-                if(token.getTypeString() == "sponto_virgula"){
-                    blockAnalysis();
+                if(token.getTypeString() == "sinteiro" || token.getTypeString() == "sbooleano"){
+                    symboltable->assignTypeToFunction("funcao " + token.getLexeme());
+                    getNextToken();
+                    if(token.getTypeString() == "sponto_virgula"){
+                        blockAnalysis();
+                    }
+                } else {
+                    throw std::runtime_error("Erro de Sintaxe! Tipo invalido na linha: " + std::to_string(lexer.getCurrentLine()));
                 }
-            } else {
-                throw std::runtime_error("Erro de Sintaxe! Tipo invalido na linha: " + std::to_string(lexer.getCurrentLine()));
-            }
 
+            } else {
+                throw std::runtime_error("Erro de Sintaxe! Espera-se ':' na linha: " + std::to_string(lexer.getCurrentLine()));
+            }
         } else {
-            throw std::runtime_error("Erro de Sintaxe! Espera-se ':' na linha: " + std::to_string(lexer.getCurrentLine()));
+            throw std::runtime_error("Funcao ja declarada na linha: " + std::to_string(lexer.getCurrentLine()));
         }
     } else {
         throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
     }
+    symboltable->cutStack();
 }
 
 void analysisProcedure() {
     getNextToken();
     if (token.getTypeString() == "sidentificador") {
-        getNextToken();
-        if(token.getTypeString() == "sponto_virgula"){
-            blockAnalysis();
+        if(!symboltable->containsProcFunc(token.getLexeme())){
+            symboltable->push(token.getLexeme(), "L", "procedimento", "");
+            getNextToken();
+            if(token.getTypeString() == "sponto_virgula"){
+                blockAnalysis();
+            } else {
+                cout << 2 << endl;
+                throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
+            }
         } else {
-            cout << 2 << endl;
-            throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
+            throw std::runtime_error("Procedimento ja declarado na linha: " + std::to_string(lexer.getCurrentLine()));
         }
+
+
     } else {
         throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
     }
+    symboltable->cutStack();
 }
 
 void analysisSubroutine() {
@@ -293,7 +575,7 @@ void variablesAnalysis() {
                                              std::to_string(lexer.getCurrentLine()));
                 }
             } else {
-                throw std::runtime_error("Erro de Sintaxe! Variavel ja declarada na linha: " +
+                throw std::runtime_error("Variavel ja declarada na linha: " +
                                          std::to_string(lexer.getCurrentLine()));
             }
         } else {
@@ -349,17 +631,18 @@ int main() {
                         if(token.getTypeString() == "endfile"){
                             cout << "Compilado com sucesso!" << endl;
                             outputFile << endl << " ------ Compilado com sucesso! --------" << endl << endl;
+                            symboltable->printStack();
                         } else
-                            throw std::runtime_error("ERRO sintatico: " + std::to_string(lexer.getCurrentLine()));
+                            throw std::runtime_error("Simbolos invalidos apos o fim do programa na linha: " + std::to_string(lexer.getCurrentLine()));
                     } else {
-                        throw std::runtime_error("Erro de Sintaxe! Espera-se '.' na linha: " + std::to_string(lexer.getCurrentLine()));
+                        throw std::runtime_error("Espera-se '.' na linha: " + std::to_string(lexer.getCurrentLine()));
                     }
                 } else {
                     cout << 5 << endl;
-                    throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
+                    throw std::runtime_error("Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
                 }
             } else {
-                throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
+                throw std::runtime_error("Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
             }
         } else {
             throw std::runtime_error("Erro de Sintaxe! Espera-se 'programa' na linha: " + std::to_string(lexer.getCurrentLine()));

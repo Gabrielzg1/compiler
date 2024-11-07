@@ -1,6 +1,7 @@
 #ifndef SYMBOL_TABLE_H
 #define SYMBOL_TABLE_H
 
+#include <vector>
 #include <string>
 using namespace std;
 
@@ -31,10 +32,17 @@ public:
     void assignTypeToVariables(const std::string& newType);
     void printStack() const;
     void cutStack();
+    void assignTypeToFunction(const std::string& newType);
+    vector<string> toPostFix(const vector<string>& input);
+    string inferType(const vector<string>& postFixExpr);
+    bool isProcedureOrProgram(const std::string& name);
+    string getType(const std::string& name);
+
+
 
 private:
     Node* top;  // Ponteiro para o topo da pilha
-    //std::vector<std::string> toPostFix(const std::vector<std::string>& input); // conversor de in Fix to post Fix
+
 
 };
 
