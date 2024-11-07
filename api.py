@@ -111,7 +111,6 @@ def generate_json(file_path):
                     "instruction": parsed_instruction["instruction"],
                     "attribute1": parsed_instruction["attribute1"],
                     "attribute2": parsed_instruction["attribute2"],
-
                 })
 
     return {"instructions": instructions}
