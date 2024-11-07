@@ -92,6 +92,7 @@ def parse_instruction(line):
         attribute2 = parts[2]
 
     return {
+        "label": label,
         "instruction": instruction,
         "attribute1": attribute1,
         "attribute2": attribute2
