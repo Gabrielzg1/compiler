@@ -1,19 +1,19 @@
-
 import subprocess
 import os
 import platform
+import json
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # Importando a extensão
+from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
+# Diretório principal e de build definidos globalmente
+cmake_source_directory = os.path.abspath(os.path.dirname(__file__))
+build_directory = os.path.abspath(os.path.join(cmake_source_directory, 'build'))
 
 # Função para rodar o CMake e gerar o build
 def build_compiler():
-    cmake_source_directory = os.path.abspath(os.path.dirname(__file__))
-    build_directory = os.path.abspath(os.path.join(cmake_source_directory, 'build'))
-
     if not os.path.exists(build_directory):
         os.makedirs(build_directory)
 
@@ -36,12 +36,8 @@ def build_compiler():
     except Exception as e:
         return f"Erro durante o processo de build: {str(e)}", 1
 
-
 # Função para rodar o compilador
 def run_compiler(code):
-    cmake_source_directory = os.path.abspath(os.path.dirname(__file__))
-    build_directory = os.path.abspath(os.path.join(cmake_source_directory, 'build'))
-
     if not os.path.exists(build_directory):
         os.makedirs(build_directory)
 
@@ -64,30 +60,62 @@ def run_compiler(code):
         if compiler_run.returncode != 0:
             return {"errorLine": 1, "message": compiler_run.stderr}
 
-        # Ler o output.txt
+        # Verifica o arquivo de saída `output.txt`
         output_file_path = os.path.join(build_directory, "output.txt")
         if os.path.exists(output_file_path):
-            with open(output_file_path, "r") as output_file:
-
-                output_content = output_file.readlines()
-
-                # Verifica se a primeira linha do arquivo está vazia ou contém apenas espaços
-                error_line_str = output_content[0].strip()
-                error_line = None  # Define como None por padrão
-                if error_line_str.isdigit():  # Somente converte se for um número válido
-                    error_line = int(error_line_str)
-
-                message = output_content[1].strip() if len(output_content) > 1 else "Nenhuma mensagem de erro."
-
-                return {"errorLine": error_line, "message": message}
+            return output_file_path  # Retorna o caminho do arquivo de saída para leitura posterior
         else:
             return {"errorLine": None, "message": "Arquivo output.txt não encontrado."}
 
     except Exception as e:
         return {"errorLine": 0, "message": f"Erro durante a execução: {str(e)}"}
 
+# Função para converter o conteúdo do arquivo em JSON conforme estrutura esperada
+def parse_instruction(line):
+    parts = line.strip().split()
+    label = None
+    instruction = None
+    attribute1 = None
+    attribute2 = None
 
+    # Verifica se o primeiro item é um rótulo numérico
+    if parts[0].isdigit():
+        label = parts[0]
+        parts = parts[1:]  # Remove o rótulo da lista de partes
 
+    # Define a instrução e os atributos restantes
+    if len(parts) > 0:
+        instruction = parts[0]
+    if len(parts) > 1:
+        attribute1 = parts[1]
+    if len(parts) > 2:
+        attribute2 = parts[2]
+
+    return {
+        "instruction": instruction,
+        "attribute1": attribute1,
+        "attribute2": attribute2
+    }
+
+def generate_json(file_path):
+    instructions = []
+    with open(file_path, "r") as file:
+        for index, line in enumerate(file):
+            if line.strip():  # Ignora linhas vazias
+                parsed_instruction = parse_instruction(line)
+                # Adiciona a linha com os campos mapeados corretamente
+                instructions.append({
+                    "line": index + 1,
+                    "label": parsed_instruction["label"],
+                    "instruction": parsed_instruction["instruction"],
+                    "attribute1": parsed_instruction["attribute1"],
+                    "attribute2": parsed_instruction["attribute2"],
+
+                })
+
+    return {"instructions": instructions}
+
+# Rota para compilar o código
 @app.route('/compile', methods=['POST'])
 def compile_code():
     data = request.json
@@ -97,11 +125,26 @@ def compile_code():
         return jsonify({"errorLine": 0, "message": "Nenhum código fornecido"}), 400
 
     result = run_compiler(code)
-    return jsonify(result)
+    print(code)
+    # Se o compilador retornar um erro, ele já será um dicionário com `errorLine` e `message`
+    if isinstance(result, dict):
+        return jsonify(result)
 
+    # Se o compilador rodou corretamente, `result` conterá o caminho do arquivo de saída
+    return jsonify({"message": "Código compilado com sucesso.", "output_file": result})
+
+# Rota para gerar JSON a partir do arquivo de saída
+@app.route('/get_obj', methods=['GET'])
+def generate_json_from_output():
+    output_file_path = os.path.join("test.txt")
+
+    if not os.path.exists(output_file_path):
+        return jsonify({"error": "Arquivo de saída não encontrado. Execute a compilação primeiro."}), 404
+
+    instructions_json = generate_json(output_file_path)
+    return jsonify(instructions_json)
 
 if __name__ == '__main__':
-    # Build do compilador na inicialização
     build_message, build_status = build_compiler()
     if build_status != 0:
         print(build_message)
