@@ -135,7 +135,7 @@ string inferType(const vector<string>& postFixExpr) {
                         typeStack.push("booleano");
                     }
                     else {
-                        throw runtime_error("Tipo invalido para o token '" + expr + "'.");
+                        throw runtime_error("Tipo invalido para o token '" + expr + "'." + " Linha: " + std::to_string(lexer.getCurrentLine()));
                     }
                 }
             }
@@ -147,7 +147,7 @@ string inferType(const vector<string>& postFixExpr) {
                 string left = typeStack.top(); typeStack.pop();
 
                 if (right != "inteiro" || left != "inteiro") {
-                    throw runtime_error("Operadores aritmeticos requerem inteiros.");
+                    throw runtime_error("Operadores aritmeticos requerem inteiros. linha: " + std::to_string(lexer.getCurrentLine()));
                 }
 
                 // Resultado também é inteiro
@@ -159,7 +159,7 @@ string inferType(const vector<string>& postFixExpr) {
                 string operand = typeStack.top(); typeStack.pop();
 
                 if (operand != "inteiro") {
-                    throw runtime_error("Operadores unarios requerem inteiros.");
+                    throw runtime_error("Operadores unarios requerem inteiros. Linha: " + std::to_string(lexer.getCurrentLine()));
                 }
 
                 // Resultado também é inteiro
@@ -167,12 +167,12 @@ string inferType(const vector<string>& postFixExpr) {
 
             } else if (expr == "=" || expr == "!=") {
                 // Operadores de igualdade: ambos operandos devem ser do mesmo tipo
-                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes.");
+                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes. Linha: " + std::to_string(lexer.getCurrentLine()));
                 string right = typeStack.top(); typeStack.pop();
                 string left = typeStack.top(); typeStack.pop();
 
                 if (right != left) {
-                    throw runtime_error("Operadores de igualdade requerem operandos do mesmo tipo.");
+                    throw runtime_error("Operadores de igualdade requerem operandos do mesmo tipo. Linha: " + std::to_string(lexer.getCurrentLine()));
                 }
 
                 // Resultado é booleano
@@ -180,12 +180,12 @@ string inferType(const vector<string>& postFixExpr) {
 
             } else if (expr == "<" || expr == ">" || expr == "<=" || expr == ">=") {
                 // Operadores relacionais: ambos operandos devem ser inteiros
-                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes.");
+                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes. Linha: " + std::to_string(lexer.getCurrentLine()));
                 string right = typeStack.top(); typeStack.pop();
                 string left = typeStack.top(); typeStack.pop();
 
                 if (right != "inteiro" || left != "inteiro") {
-                    throw runtime_error("Operadores relacionais requerem inteiros.");
+                    throw runtime_error("Operadores relacionais requerem inteiros. Linha: " + std::to_string(lexer.getCurrentLine()));
                 }
 
                 // Resultado é booleano
@@ -193,12 +193,12 @@ string inferType(const vector<string>& postFixExpr) {
 
             } else if (expr == "e" || expr == "ou") {
                 // Operadores lógicos binários: ambos operandos devem ser booleanos
-                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes.");
+                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes. Linha: " + std::to_string(lexer.getCurrentLine()));
                 string right = typeStack.top(); typeStack.pop();
                 string left = typeStack.top(); typeStack.pop();
 
                 if (right != "booleano" || left != "booleano") {
-                    throw runtime_error("Operadores logicos requerem booleanos.");
+                    throw runtime_error("Operadores logicos requerem booleanos. Linha: " + std::to_string(lexer.getCurrentLine()));
                 }
 
                 // Resultado também é booleano
@@ -206,11 +206,11 @@ string inferType(const vector<string>& postFixExpr) {
 
             } else if (expr == "nao") {
                 // Operador unário lógico: operando deve ser booleano
-                if (typeStack.empty()) throw runtime_error("Operandos insuficientes.");
+                if (typeStack.empty()) throw runtime_error("Operandos insuficientes. Linha: " + std::to_string(lexer.getCurrentLine()));
                 string operand = typeStack.top(); typeStack.pop();
 
                 if (operand != "booleano") {
-                    throw runtime_error("Operador 'nao' requer booleano.");
+                    throw runtime_error("Operador 'nao' requer booleano. Linha: " + std::to_string(lexer.getCurrentLine()));
                 }
 
                 // Resultado também é booleano
@@ -220,7 +220,7 @@ string inferType(const vector<string>& postFixExpr) {
     }
 
     // Ao final, deve sobrar apenas um tipo na pilha
-    if (typeStack.size() != 1) throw runtime_error("Erro: expressão malformada.");
+    if (typeStack.size() != 1) throw runtime_error("Erro: expressão malformada. Linha: " + std::to_string(lexer.getCurrentLine()));
 
     // Retorna o tipo final
     return typeStack.top();
@@ -771,7 +771,7 @@ int main() {
                     blockAnalysis();
                     if(token.getTypeString() == "sponto"){
                         int count = symboltable->cutStack();
-                        cout << "Numero de variaveis  - " + to_string(count) << endl;
+                        cout << "Numero de variaveis Globais - " + to_string(count) << endl;
                         gera(" ", "DALLOC", to_string(memoryPosition), to_string(count));
                         getNextToken();
                         if(token.getTypeString() == "endfile"){

@@ -111,7 +111,7 @@ def generate_json(file_path):
                 parsed_instruction = parse_instruction(line)
                 # Adiciona a linha com os campos mapeados corretamente
                 instructions.append({
-                    "line": index + 1,
+                    "line": index ,
                     "label": parsed_instruction["label"],
                     "instruction": parsed_instruction["instruction"],
                     "attribute1": parsed_instruction["attribute1"],
@@ -142,7 +142,8 @@ def compile_code():
 # Rota para gerar JSON a partir do arquivo de saída
 @app.route('/get_obj', methods=['GET'])
 def generate_json_from_output():
-    output_file_path = os.path.join("test.txt")
+
+    output_file_path = os.path.join(build_directory, "assembly.txt")
 
     if not os.path.exists(output_file_path):
         return jsonify({"error": "Arquivo de saída não encontrado. Execute a compilação primeiro."}), 404

@@ -1,5 +1,6 @@
 programa teste2;
 var x,y,z,a,t: inteiro;
+    teste: booleano;
 inicio
   se (x <= y) ou (x>=z) e (x!=a) ou (x=t)
   entao {teste}
