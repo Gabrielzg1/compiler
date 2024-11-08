@@ -51,49 +51,46 @@ void gera(string label, string instruction, string attribute1, string attribute2
     assemblyFile << label << " " << instruction << " " << attribute1 << " " << attribute2 << endl;
 }
 
-void geraExpressao(const vector<string>& postfix){
-    for(const auto & i : postfix){
-        if(i == "nao"){
+void geraExpressao(const vector<string>& postfix) {
+    for (const auto& i : postfix) {
+        if (i == "nao") {
             gera(" ", "NEG", "", "");
-        } else if(i == "e"){
+        } else if (i == "e") {
             gera(" ", "AND", "", "");
-        } else if(i == "ou"){
+        } else if (i == "ou") {
             gera(" ", "OR", "", "");
-        } else if(i == "+"){
+        } else if (i == "+") {
             gera(" ", "ADD", "", "");
-        } else if(i == "-"){
+        } else if (i == "-") {
             gera(" ", "SUB", "", "");
-        } else if(i == "*"){
+        } else if (i == "*") {
             gera(" ", "MULT", "", "");
-        } else if(i == "div"){
-            gera(" ", "DIV", "", "");
-        } else if(i == "="){
+        } else if (i == "div") {
+            gera(" ", "DIVI", "", ""); // Corrigido para 'DIVI' conforme a instrução
+        } else if (i == "=") {
             gera(" ", "CEQ", "", "");
-        } else if(i == "!="){
+        } else if (i == "!=") {
             gera(" ", "CDIF", "", "");
-        } else if(i == "<"){
+        } else if (i == "<") {
             gera(" ", "CME", "", "");
-        } else if(i == ">"){
+        } else if (i == ">") {
             gera(" ", "CMA", "", "");
-        } else if(i == "<="){
+        } else if (i == "<=") {
             gera(" ", "CMEQ", "", "");
-        } else if(i == ">="){
+        } else if (i == ">=") {
             gera(" ", "CMAQ", "", "");
-
-        }
-            // revisar
-        else if(i == "+u"){
-            gera(" ", "INV", "", "");
-        } else if(i == "-u"){
-            gera(" ", "NEG", "", "");
-        } else if(i == "verdadeiro"){
-            gera(" ", "LDC", "1", "");
-        } else if(i == "falso"){
-            gera(" ", "LDC", "0", "");
-        } else if(symboltable->contains(i)){
-            gera(" ", "LDV", symboltable->getAddress(i), "");
+        } else if (i == "+u") {
+            gera(" ", "INV", "", "");  // Para inversão de sinal positivo
+        } else if (i == "-u") {
+            gera(" ", "NEG", "", "");  // Para inversão de sinal negativo
+        } else if (i == "verdadeiro") {
+            gera(" ", "LDC", "1", ""); // Carregar constante '1' para verdadeiro
+        } else if (i == "falso") {
+            gera(" ", "LDC", "0", ""); // Carregar constante '0' para falso
+        } else if (symboltable->contains(i)) {
+            gera(" ", "LDV", symboltable->getAddress(i), ""); // Carregar valor de variável
         } else {
-            gera(" ", "LDC", i, "");
+            gera(" ", "LDC", i, "");  // Carregar constante genérica
         }
     }
 }
@@ -802,6 +799,10 @@ int main() {
         // Em caso de erro, grava a mensagem de erro no arquivo
         cout << "Erro: " <<   e.what() << endl;
         outputFile << lexer.getCurrentLine() << endl << "Erro: " <<   e.what() << endl;
+        assemblyFile.close();
+        assemblyFile.open("assembly.txt", ofstream::out | ofstream::trunc);
+        assemblyFile.close();
+
     }
     outputFile.close();
     assemblyFile.close();
