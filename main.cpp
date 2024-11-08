@@ -259,6 +259,7 @@ void functionCallAnalysis() {
     //implementar a busca pelo rotulo na tabela de simbolos e gerar o código
     string address = symboltable->getAddress(token.getLexeme());
     gera(" ", "CALL", std::move(address), "");
+    gera(" ", "LDV", "0", "");
     getNextToken();
 }
 
@@ -420,6 +421,7 @@ void writeAnalysis(){
 
 void atrib_chproc() {
     // Verificar se a variável está declarada na tabela de símbolos
+    int flag = 0;
     if (symboltable->contains(token.getLexeme())) {
         string type = symboltable->getType(token.getLexeme());
         string address = symboltable->getAddress(token.getLexeme());
@@ -427,18 +429,23 @@ void atrib_chproc() {
         getNextToken();
         if(type == "funcao inteiro"){
             type = "inteiro";
+            flag = 1;
+
         }
         else if(type == "funcao booleano"){
             type = "booleano";
+            flag = 1;
         }
         // Verificar se é uma atribuição ou chamada de procedimento com base no tipo e token atual
         if ((token.getTypeString() == "satribuicao") && (type == "inteiro" || type == "booleano" || type == "funcao inteiro" || type == "funcao booleano")) {
             atribAnalysis(type);
-            if(type == "funcao inteiro" || type == "funcao booleano"){
-                gera(" ", "STR", "0", "");
-            }
+
             if(type == "inteiro" || type == "booleano"){
-                gera(" ", "STR", address, "");
+                if(flag == 1){
+                    gera(" ", "STR", "0", "");
+                }
+                else
+                    gera(" ", "STR", address, "");
             }
         } else if (type == "procedimento") {
             procedureCallAnalysis(address);
@@ -617,6 +624,7 @@ void analysisFunction() {
         memoryPosition = memoryPosition -  count;
     }
     gera(" ", "RETURN", "", "");
+
 
 }
 
