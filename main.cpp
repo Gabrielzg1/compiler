@@ -43,7 +43,7 @@ void procedureCallAnalysis();
 void simpleExpressionAnalysis(std::vector<std::string>& infixExpression);
 
 void getNextToken() {
-    //cout << token.getTypeString() + " -> " + token.getLexeme() << endl;
+
     token = lexer.getNextToken();
 }
 
@@ -79,10 +79,16 @@ void geraExpressao(const vector<string>& postfix) {
             gera(" ", "CMEQ", "", "");
         } else if (i == ">=") {
             gera(" ", "CMAQ", "", "");
-        } else if (i == "+u") {
+        }
+
+        //// ------ REVISAR
+        else if (i == "-u") {
             gera(" ", "INV", "", "");  // Para inversão de sinal positivo
-        } else if (i == "-u") {
+        } else if (i == "nao") {
             gera(" ", "NEG", "", "");  // Para inversão de sinal negativo
+
+        //// ------ REVISAR
+
         } else if (i == "verdadeiro") {
             gera(" ", "LDC", "1", ""); // Carregar constante '1' para verdadeiro
         } else if (i == "falso") {
@@ -283,10 +289,7 @@ void atribAnalysis(const string& type) {
     expressionAnalysis(infixExpression);
     vector<string> postfix = symboltable->toPostFix(infixExpression);
 
-    for(auto i : postfix){
-        cout << i << " ";
-    }
-    cout  << endl;
+
 
     string expressionType = inferType(postfix);
     if(expressionType != type){
@@ -480,10 +483,6 @@ void ifAnalysis() {
     vector<string> postfix = symboltable->toPostFix(infixExpression);
 
     geraExpressao(postfix);
-    for(auto i : postfix){
-        cout << i << " ";
-    }
-    cout << endl;
 
     string expressionType = inferType(postfix);
 
@@ -629,9 +628,13 @@ void analysisFunction() {
         throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
     }
     int count = symboltable->cutStack();
-    if(count > 0) {
-        gera(" ", "DALLOC", to_string(memoryPosition), to_string(count));
-        memoryPosition = memoryPosition -  count;
+    if (count > 0) {
+        // Usar a posição inicial exata e o número de variáveis a desalocar
+        int dallocStartPosition = memoryPosition - count; // Define a posição de início correta
+        gera(" ", "DALLOC", to_string(dallocStartPosition), to_string(count));
+
+        // Atualiza o memoryPosition para refletir o novo ponto da pilha
+        memoryPosition = dallocStartPosition;
     }
     gera(" ", "RETURN", "", "");
 
@@ -650,7 +653,7 @@ void analysisProcedure() {
             if(token.getTypeString() == "sponto_virgula"){
                 blockAnalysis();
             } else {
-                cout << 2 << endl;
+
                 throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
             }
         } else {
@@ -662,9 +665,10 @@ void analysisProcedure() {
         throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
     }
     int count = symboltable->cutStack();
-    if(count > 0) {
-        gera(" ", "DALLOC", to_string(memoryPosition), to_string(count));
-        memoryPosition = memoryPosition -  count;
+    if (count > 0) {
+        int dallocStartPosition = memoryPosition - count;
+        gera(" ", "DALLOC", to_string(dallocStartPosition), to_string(count));
+        memoryPosition = dallocStartPosition;
     }
     gera(" ", "RETURN", "", "");
 
@@ -690,7 +694,7 @@ void analysisSubroutine() {
         if(token.getTypeString() == "sponto_virgula") {
             getNextToken();
         } else {
-            cout << 3 << endl;
+
             throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
         }
     }
@@ -756,7 +760,7 @@ void variablesDeclarationAnalysis() {
                     getNextToken(); // Avança o token após o ponto e vírgula
                     continue;
                 } else {
-                    cout << 4 << endl;
+
                     throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
                 }
             }
@@ -786,8 +790,8 @@ int main() {
                     blockAnalysis();
                     if(token.getTypeString() == "sponto"){
                         int count = symboltable->cutStack();
-                        cout << "Numero de variaveis Globais - " + to_string(count) << endl;
-                        gera(" ", "DALLOC", to_string(memoryPosition), to_string(count));
+                        int dallocStartPosition = memoryPosition - count; // Define a posição de início correta
+                        gera(" ", "DALLOC", to_string(dallocStartPosition), to_string(count));
                         getNextToken();
                         if(token.getTypeString() == "endfile"){
                             cout << "Compilado com sucesso!" << endl;
@@ -802,7 +806,7 @@ int main() {
                         throw std::runtime_error("Espera-se '.' na linha: " + std::to_string(lexer.getCurrentLine()));
                     }
                 } else {
-                    cout << 5 << endl;
+
                     throw std::runtime_error("Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
                 }
             } else {

@@ -47,6 +47,7 @@ def run_compiler(code):
         with open(code_file_path, "w") as file:
             file.write(code)
 
+
         # Caminho para o executável
         system = platform.system()
         compiler_executable = os.path.join(build_directory, "compiler.exe") if system == "Windows" else os.path.join(build_directory, "compiler")
@@ -131,7 +132,6 @@ def compile_code():
         return jsonify({"errorLine": 0, "message": "Nenhum código fornecido"}), 400
 
     result = run_compiler(code)
-    print(code)
     # Se o compilador retornar um erro, ele já será um dicionário com `errorLine` e `message`
     if isinstance(result, dict):
         return jsonify(result)
@@ -153,8 +153,11 @@ def generate_json_from_output():
 
 if __name__ == '__main__':
     build_message, build_status = build_compiler()
+
     if build_status != 0:
         print(build_message)
     else:
         print("Servidor iniciado com sucesso!")
     app.run(debug=True)
+
+

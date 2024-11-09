@@ -86,12 +86,9 @@ int SymbolTable::cutStack() {
     // Vai até encontrar o "L" e remove todos os elemento, assim que o encontra, retira o "L" do escopo
     int count = 0;
     while (top != nullptr && top->symbolInfo->scopeLevel != "L") {
-        //cout << "Name: " << top->symbolInfo->name << endl;
         if(top->symbolInfo->type == "inteiro" || top->symbolInfo->type == "booleano"){
             count++;
         }
-
-
         pop();
     }
     if (top != nullptr) {
