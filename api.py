@@ -111,7 +111,7 @@ def generate_json(file_path):
                 parsed_instruction = parse_instruction(line)
                 # Adiciona a linha com os campos mapeados corretamente
                 instructions.append({
-                    "line": index ,
+                    "line": index,
                     "label": parsed_instruction["label"],
                     "instruction": parsed_instruction["instruction"],
                     "attribute1": parsed_instruction["attribute1"],

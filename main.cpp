@@ -88,7 +88,11 @@ void geraExpressao(const vector<string>& postfix) {
         } else if (i == "falso") {
             gera(" ", "LDC", "0", ""); // Carregar constante '0' para falso
         } else if (symboltable->contains(i)) {
-            gera(" ", "LDV", symboltable->getAddress(i), ""); // Carregar valor de variável
+            string type = symboltable->getType(i);
+            if(type == "funcao inteiro" || type == "funcao booleano"){
+               gera(" ", "LDV", "0", ""); // Carregar valor de variável
+            }else
+                gera(" ", "LDV", symboltable->getAddress(i), ""); // Carregar valor de variável
         } else {
             gera(" ", "LDC", i, "");  // Carregar constante genérica
         }
@@ -259,7 +263,7 @@ void functionCallAnalysis() {
     //implementar a busca pelo rotulo na tabela de simbolos e gerar o código
     string address = symboltable->getAddress(token.getLexeme());
     gera(" ", "CALL", std::move(address), "");
-    gera(" ", "LDV", "0", "");
+   
     getNextToken();
 }
 
@@ -278,6 +282,12 @@ void atribAnalysis(const string& type) {
 
     expressionAnalysis(infixExpression);
     vector<string> postfix = symboltable->toPostFix(infixExpression);
+
+    for(auto i : postfix){
+        cout << i << " ";
+    }
+    cout  << endl;
+
     string expressionType = inferType(postfix);
     if(expressionType != type){
         throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
