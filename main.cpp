@@ -795,7 +795,7 @@ int main() {
                         getNextToken();
                         if(token.getTypeString() == "endfile"){
                             cout << "Compilado com sucesso!" << endl;
-                            outputFile << endl << " ------ Compilado com sucesso! --------" << endl << endl;
+                            outputFile << endl << "Compilado com sucesso!" << endl << endl;
                             symboltable->printStack();
                             gera(" ", "DALLOC", "0", "1");
                             gera(" ", "HLT", "", "");
