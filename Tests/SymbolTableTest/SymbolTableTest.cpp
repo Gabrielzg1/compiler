@@ -35,22 +35,7 @@ int main() {
 
     std::vector<std::string> output = symbolTable.toPostFix(input);
 
-    std::cout << "Posfixa: ";
-    for (const std::string& token : output) {
-        std::cout << token << " ";
-    }
 
-    std::cout << std::endl;
-    try {
-        std::string resultType = symbolTable.inferType(output);
-        if (resultType == "inteiro") {
-            std::cout << "O tipo da expressao: Inteiro." << std::endl;
-        } else {
-            std::cout << "O tipo da expressao: Booleano." << std::endl;
-        }
-    } catch (const std::exception& ex) {
-        std::cout << "Erro: " << ex.what() << std::endl;
-    }
 
     return 0;
 }

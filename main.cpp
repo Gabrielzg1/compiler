@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <stack>
+#include <utility>
 #include <vector>
 #include <algorithm>
 #include "Lexical/Lexical.h"
@@ -11,10 +12,12 @@ using namespace std;
 Lexical lexer("code.txt");
 SymbolTable* symboltable = new SymbolTable();
 Token token = lexer.getNextToken();
-vector<string> auxiliar;
+int label = 1;
+int memoryPosition = 1;
 
 // Arquivo de saída para salvar os resultados
 ofstream outputFile("output.txt");
+ofstream assemblyFile("assembly.txt");
 
 void getNextToken();
 void analysisFunction();
@@ -40,8 +43,66 @@ void procedureCallAnalysis();
 void simpleExpressionAnalysis(std::vector<std::string>& infixExpression);
 
 void getNextToken() {
-    //cout << token.getTypeString() + " -> " + token.getLexeme() << endl;
+
     token = lexer.getNextToken();
+}
+
+void gera(string label, string instruction, string attribute1, string attribute2){
+    assemblyFile << label << " " << instruction << " " << attribute1 << " " << attribute2 << endl;
+}
+
+void geraExpressao(const vector<string>& postfix) {
+    for (const auto& i : postfix) {
+        if (i == "nao") {
+            gera(" ", "NEG", "", "");
+        } else if (i == "e") {
+            gera(" ", "AND", "", "");
+        } else if (i == "ou") {
+            gera(" ", "OR", "", "");
+        } else if (i == "+") {
+            gera(" ", "ADD", "", "");
+        } else if (i == "-") {
+            gera(" ", "SUB", "", "");
+        } else if (i == "*") {
+            gera(" ", "MULT", "", "");
+        } else if (i == "div") {
+            gera(" ", "DIVI", "", ""); // Corrigido para 'DIVI' conforme a instrução
+        } else if (i == "=") {
+            gera(" ", "CEQ", "", "");
+        } else if (i == "!=") {
+            gera(" ", "CDIF", "", "");
+        } else if (i == "<") {
+            gera(" ", "CME", "", "");
+        } else if (i == ">") {
+            gera(" ", "CMA", "", "");
+        } else if (i == "<=") {
+            gera(" ", "CMEQ", "", "");
+        } else if (i == ">=") {
+            gera(" ", "CMAQ", "", "");
+        }
+
+        //// ------ REVISAR
+        else if (i == "-u") {
+            gera(" ", "INV", "", "");  // Para inversão de sinal positivo
+        } else if (i == "nao") {
+            gera(" ", "NEG", "", "");  // Para inversão de sinal negativo
+
+        //// ------ REVISAR
+
+        } else if (i == "verdadeiro") {
+            gera(" ", "LDC", "1", ""); // Carregar constante '1' para verdadeiro
+        } else if (i == "falso") {
+            gera(" ", "LDC", "0", ""); // Carregar constante '0' para falso
+        } else if (symboltable->contains(i)) {
+            string type = symboltable->getType(i);
+            if(type == "funcao inteiro" || type == "funcao booleano"){
+               gera(" ", "LDV", "0", ""); // Carregar valor de variável
+            }else
+                gera(" ", "LDV", symboltable->getAddress(i), ""); // Carregar valor de variável
+        } else {
+            gera(" ", "LDC", i, "");  // Carregar constante genérica
+        }
+    }
 }
 
 
@@ -81,7 +142,7 @@ string inferType(const vector<string>& postFixExpr) {
                         typeStack.push("booleano");
                     }
                     else {
-                        throw runtime_error("Tipo invalido para o token '" + expr + "'.");
+                        throw runtime_error("Tipo invalido para o token '" + expr + "'." + " Linha: " + std::to_string(lexer.getCurrentLine()));
                     }
                 }
             }
@@ -93,7 +154,7 @@ string inferType(const vector<string>& postFixExpr) {
                 string left = typeStack.top(); typeStack.pop();
 
                 if (right != "inteiro" || left != "inteiro") {
-                    throw runtime_error("Operadores aritmeticos requerem inteiros.");
+                    throw runtime_error("Operadores aritmeticos requerem inteiros. linha: " + std::to_string(lexer.getCurrentLine()));
                 }
 
                 // Resultado também é inteiro
@@ -105,7 +166,7 @@ string inferType(const vector<string>& postFixExpr) {
                 string operand = typeStack.top(); typeStack.pop();
 
                 if (operand != "inteiro") {
-                    throw runtime_error("Operadores unarios requerem inteiros.");
+                    throw runtime_error("Operadores unarios requerem inteiros. Linha: " + std::to_string(lexer.getCurrentLine()));
                 }
 
                 // Resultado também é inteiro
@@ -113,12 +174,12 @@ string inferType(const vector<string>& postFixExpr) {
 
             } else if (expr == "=" || expr == "!=") {
                 // Operadores de igualdade: ambos operandos devem ser do mesmo tipo
-                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes.");
+                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes. Linha: " + std::to_string(lexer.getCurrentLine()));
                 string right = typeStack.top(); typeStack.pop();
                 string left = typeStack.top(); typeStack.pop();
 
                 if (right != left) {
-                    throw runtime_error("Operadores de igualdade requerem operandos do mesmo tipo.");
+                    throw runtime_error("Operadores de igualdade requerem operandos do mesmo tipo. Linha: " + std::to_string(lexer.getCurrentLine()));
                 }
 
                 // Resultado é booleano
@@ -126,12 +187,12 @@ string inferType(const vector<string>& postFixExpr) {
 
             } else if (expr == "<" || expr == ">" || expr == "<=" || expr == ">=") {
                 // Operadores relacionais: ambos operandos devem ser inteiros
-                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes.");
+                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes. Linha: " + std::to_string(lexer.getCurrentLine()));
                 string right = typeStack.top(); typeStack.pop();
                 string left = typeStack.top(); typeStack.pop();
 
                 if (right != "inteiro" || left != "inteiro") {
-                    throw runtime_error("Operadores relacionais requerem inteiros.");
+                    throw runtime_error("Operadores relacionais requerem inteiros. Linha: " + std::to_string(lexer.getCurrentLine()));
                 }
 
                 // Resultado é booleano
@@ -139,12 +200,12 @@ string inferType(const vector<string>& postFixExpr) {
 
             } else if (expr == "e" || expr == "ou") {
                 // Operadores lógicos binários: ambos operandos devem ser booleanos
-                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes.");
+                if (typeStack.size() < 2) throw runtime_error("Operandos insuficientes. Linha: " + std::to_string(lexer.getCurrentLine()));
                 string right = typeStack.top(); typeStack.pop();
                 string left = typeStack.top(); typeStack.pop();
 
                 if (right != "booleano" || left != "booleano") {
-                    throw runtime_error("Operadores logicos requerem booleanos.");
+                    throw runtime_error("Operadores logicos requerem booleanos. Linha: " + std::to_string(lexer.getCurrentLine()));
                 }
 
                 // Resultado também é booleano
@@ -152,11 +213,11 @@ string inferType(const vector<string>& postFixExpr) {
 
             } else if (expr == "nao") {
                 // Operador unário lógico: operando deve ser booleano
-                if (typeStack.empty()) throw runtime_error("Operandos insuficientes.");
+                if (typeStack.empty()) throw runtime_error("Operandos insuficientes. Linha: " + std::to_string(lexer.getCurrentLine()));
                 string operand = typeStack.top(); typeStack.pop();
 
                 if (operand != "booleano") {
-                    throw runtime_error("Operador 'nao' requer booleano.");
+                    throw runtime_error("Operador 'nao' requer booleano. Linha: " + std::to_string(lexer.getCurrentLine()));
                 }
 
                 // Resultado também é booleano
@@ -166,7 +227,7 @@ string inferType(const vector<string>& postFixExpr) {
     }
 
     // Ao final, deve sobrar apenas um tipo na pilha
-    if (typeStack.size() != 1) throw runtime_error("Erro: expressão malformada.");
+    if (typeStack.size() != 1) throw runtime_error("Erro: expressão malformada. Linha: " + std::to_string(lexer.getCurrentLine()));
 
     // Retorna o tipo final
     return typeStack.top();
@@ -205,39 +266,43 @@ void simpleExpressionAnalysis(std::vector<std::string>& infixExpression) {
 
 void functionCallAnalysis() {
     // Alterar na geracao de código
+    //implementar a busca pelo rotulo na tabela de simbolos e gerar o código
+    string address = symboltable->getAddress(token.getLexeme());
+    gera(" ", "CALL", std::move(address), "");
+   
     getNextToken();
 }
 
-void procedureCallAnalysis(){
+void procedureCallAnalysis(string address) {
+    gera(" ", "CALL", std::move(address), "");
     // Geracao de código
 }
 
-void atribAnalysis(const string& type) {
-    getNextToken();
 
+// Colocar o STR AQUI
+void atribAnalysis(const string& type) {
+
+    getNextToken();
     // Criar e passar por referência o vetor de strings para a expressão infix
     std::vector<std::string> infixExpression;
+
     expressionAnalysis(infixExpression);
-
-
     vector<string> postfix = symboltable->toPostFix(infixExpression);
 
-    cout << "Posfixa: ";
-    for (const string& token : postfix) {
-        cout << token << " ";
-    }
+
 
     string expressionType = inferType(postfix);
-
-    cout << "---> " << expressionType << endl;
     if(expressionType != type){
         throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
     }
+    geraExpressao(postfix);
+
+
 }
 
 void factorAnalysis(std::vector<std::string>& infixExpression) {
     if (token.getTypeString() == "sidentificador") {
-        if (symboltable->containsProcFunc(token.getLexeme())) {
+        if (symboltable->contains(token.getLexeme())) {
             if (symboltable->getType(token.getLexeme()) == "funcao inteiro" || symboltable->getType(token.getLexeme()) == "funcao booleano") {
                 infixExpression.push_back(token.getLexeme());
                 functionCallAnalysis();
@@ -246,6 +311,8 @@ void factorAnalysis(std::vector<std::string>& infixExpression) {
                     // Adicionar variável ao vetor de expressão infix
                     infixExpression.push_back(token.getLexeme());
                     getNextToken();
+
+
                 } else {
                     throw std::runtime_error("Procedimento usado indevidamente na linha: " + std::to_string(lexer.getCurrentLine()));
                 }
@@ -307,12 +374,16 @@ void readAnalysis(){
     if(token.getTypeString() == "sabre_parenteses"){
         getNextToken();
         if(token.getTypeString() == "sidentificador"){
-            if(symboltable->containsProcFunc(token.getLexeme()) && symboltable->getType(token.getLexeme()) == "inteiro"){
+            if(symboltable->contains(token.getLexeme()) && symboltable->getType(token.getLexeme()) == "inteiro"){
                 /* Inserir Lógica de busca geracao de código -> pega a primeira ocorrencia da variavel
                  *
                  * /////
                  *
+                 *
                 */
+                gera(" ", "RD", "", "");
+                gera(" ", "STR", symboltable->getAddress(token.getLexeme()), "");
+
                 getNextToken();
                 if(token.getTypeString() == "sfecha_parenteses"){
                     getNextToken();
@@ -335,12 +406,17 @@ void writeAnalysis(){
     if(token.getTypeString() == "sabre_parenteses"){
         getNextToken();
         if(token.getTypeString() == "sidentificador"){
-            if(symboltable->containsProcFunc(token.getLexeme()) && symboltable->getType(token.getLexeme()) == "inteiro"){
+            if(symboltable->contains(token.getLexeme()) && symboltable->getType(token.getLexeme()) == "inteiro"){
                 /* Inserir Lógica de busca geracao de código -> pega a primeira ocorrencia da variavel
                  *
                  * /////
                  *
                 */
+                gera(" ", "LDV", symboltable->getAddress(token.getLexeme()), "");
+                gera(" ", "PRN", "", "");
+
+
+
                 getNextToken();
                 if(token.getTypeString() == "sfecha_parenteses"){
                     getNextToken();
@@ -358,20 +434,34 @@ void writeAnalysis(){
 
 void atrib_chproc() {
     // Verificar se a variável está declarada na tabela de símbolos
-    if (symboltable->containsProcFunc(token.getLexeme())) {
+    int flag = 0;
+    if (symboltable->contains(token.getLexeme())) {
         string type = symboltable->getType(token.getLexeme());
+        string address = symboltable->getAddress(token.getLexeme());
+
         getNextToken();
         if(type == "funcao inteiro"){
             type = "inteiro";
+            flag = 1;
+
         }
         else if(type == "funcao booleano"){
             type = "booleano";
+            flag = 1;
         }
         // Verificar se é uma atribuição ou chamada de procedimento com base no tipo e token atual
         if ((token.getTypeString() == "satribuicao") && (type == "inteiro" || type == "booleano" || type == "funcao inteiro" || type == "funcao booleano")) {
             atribAnalysis(type);
+
+            if(type == "inteiro" || type == "booleano"){
+                if(flag == 1){
+                    gera(" ", "STR", "0", "");
+                }
+                else
+                    gera(" ", "STR", address, "");
+            }
         } else if (type == "procedimento") {
-            procedureCallAnalysis();
+            procedureCallAnalysis(address);
         } else {
             // Tipo inválido para atribuição ou chamada de procedimento
             throw std::runtime_error("Tipo invalido na atribuição/chamada de procedimento na linha " + std::to_string(lexer.getCurrentLine()));
@@ -385,29 +475,49 @@ void atrib_chproc() {
 
 void ifAnalysis() {
     getNextToken();
+    int auxLabel1, auxLabel2;
 
-    // Criar e passar por referência o vetor de strings para a expressão infix
+    // Análise da expressão condicional E
     std::vector<std::string> infixExpression;
     expressionAnalysis(infixExpression);
     vector<string> postfix = symboltable->toPostFix(infixExpression);
 
-    string expressionType = inferType(postfix);
-    cout << "Posfixa: ";
-    for (const string& token : postfix) {
-        cout << token << " ";
-    }
-    cout << "---> " << expressionType << endl;
+    geraExpressao(postfix);
 
-    if(expressionType != "booleano"){
+    string expressionType = inferType(postfix);
+
+    if (expressionType != "booleano") {
         throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
     }
 
+    // Rótulo para pular caso a expressão E seja falsa
+    auxLabel1 = label;
+    gera(" ", "JMPF", to_string(auxLabel1), "");
+    label++;
+
+    // Analisar o bloco C1 (`entao`)
     if (token.getTypeString() == "sentao") {
         getNextToken();
         simpleCommand();
+
+        // Se houver `senao`
         if (token.getTypeString() == "ssenao") {
+            auxLabel2 = label;
+
+            // Gerar JMP para pular o bloco `senao` após `entao`
+            gera(" ", "JMP", to_string(auxLabel2), "");
+
+            // Marcar o início do bloco `senao`
+            gera(to_string(auxLabel1), "NULL", "", "");
+
             getNextToken();
             simpleCommand();
+
+            // Finalizar o bloco `senao`
+            gera(to_string(auxLabel2), "NULL", "", "");
+        } else {
+            // Caso não haja `senao`, finalizar o bloco `entao`
+            gera(to_string(auxLabel1), "NULL", "", "");
         }
     } else {
         throw std::runtime_error("Erro de Sintaxe! Espera-se 'entao' na linha: " + std::to_string(lexer.getCurrentLine()));
@@ -416,25 +526,32 @@ void ifAnalysis() {
 
 void whileAnalysis() {
     getNextToken();
-
+    int auxLabel1, auxLabel2;
+    auxLabel1 = label;
+    gera(to_string(label), "NULL", "", "");
+    label++;
     // Criar e passar por referência o vetor de strings para a expressão infix
     std::vector<std::string> infixExpression;
     expressionAnalysis(infixExpression);
     vector<string> postfix = symboltable->toPostFix(infixExpression);
     string expressionType = inferType(postfix);
 
-    cout << "Posfixa: ";
-    for (const string& token : postfix) {
-        cout << token << " ";
-    }
-    cout << "---> " << expressionType << endl;
+
     if(expressionType != "booleano"){
         throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
     }
+    // Colocar aqui geracao de código
+    geraExpressao(postfix);
 
     if (token.getTypeString() == "sfaca") {
+        auxLabel2 = label;
+
+        gera(" ", "JMPF", to_string(label), "");
         getNextToken();
         simpleCommand();
+
+        gera(" ", "JMP", to_string(auxLabel1), "");
+        gera(to_string(auxLabel2), "NULL", "", "");
     } else {
         throw std::runtime_error("Erro de Sintaxe! Espera-se 'faca' ou um operador logico na linha: " + std::to_string(lexer.getCurrentLine()));
     }
@@ -479,9 +596,15 @@ void commandsAnalysis() {
 
 void analysisFunction() {
     getNextToken();
+
     if (token.getTypeString() == "sidentificador") {
-        if(!symboltable->containsProcFunc(token.getLexeme())){
-            symboltable->push(token.getLexeme(), "L", "function", "");
+        if(!symboltable->contains(token.getLexeme())){
+            symboltable->push(token.getLexeme(), "L", "function", to_string(label));
+
+            //Gera a marcação da função e soma 1 ao label
+            gera(to_string(label), "NULL", "", "");
+            label++;
+
             getNextToken();
             if(token.getTypeString() == "sdoispontos"){
                 getNextToken();
@@ -504,19 +627,33 @@ void analysisFunction() {
     } else {
         throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
     }
-    symboltable->cutStack();
+    int count = symboltable->cutStack();
+    if (count > 0) {
+        // Usar a posição inicial exata e o número de variáveis a desalocar
+        int dallocStartPosition = memoryPosition - count; // Define a posição de início correta
+        gera(" ", "DALLOC", to_string(dallocStartPosition), to_string(count));
+
+        // Atualiza o memoryPosition para refletir o novo ponto da pilha
+        memoryPosition = dallocStartPosition;
+    }
+    gera(" ", "RETURN", "", "");
+
+
 }
+
 
 void analysisProcedure() {
     getNextToken();
     if (token.getTypeString() == "sidentificador") {
-        if(!symboltable->containsProcFunc(token.getLexeme())){
-            symboltable->push(token.getLexeme(), "L", "procedimento", "");
+        if(!symboltable->contains(token.getLexeme())){
+            symboltable->push(token.getLexeme(), "L", "procedimento", to_string(label));
+            gera(to_string(label), "NULL", "", "");
+            label++;
             getNextToken();
             if(token.getTypeString() == "sponto_virgula"){
                 blockAnalysis();
             } else {
-                cout << 2 << endl;
+
                 throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
             }
         } else {
@@ -527,10 +664,27 @@ void analysisProcedure() {
     } else {
         throw std::runtime_error("Erro de Sintaxe! Espera-se 'identificador' na linha: " + std::to_string(lexer.getCurrentLine()));
     }
-    symboltable->cutStack();
+    int count = symboltable->cutStack();
+    if (count > 0) {
+        int dallocStartPosition = memoryPosition - count;
+        gera(" ", "DALLOC", to_string(dallocStartPosition), to_string(count));
+        memoryPosition = dallocStartPosition;
+    }
+    gera(" ", "RETURN", "", "");
+
+
 }
 
 void analysisSubroutine() {
+    int flag, auxLabel;
+    flag = 0;
+    if(token.getTypeString() == "sprocedimento" || token.getTypeString() == "sfuncao"){
+        auxLabel = label;
+        gera(" ", "JMP", to_string(label), "");
+        label++;
+        flag = 1;
+    }
+
     while (token.getTypeString() == "sprocedimento" || token.getTypeString() == "sfuncao") {
         if (token.getTypeString() == "sprocedimento") {
             analysisProcedure();
@@ -540,9 +694,12 @@ void analysisSubroutine() {
         if(token.getTypeString() == "sponto_virgula") {
             getNextToken();
         } else {
-            cout << 3 << endl;
+
             throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
         }
+    }
+    if(flag == 1){
+        gera(to_string(auxLabel), "NULL", "", "");
     }
 }
 
@@ -555,10 +712,12 @@ void typeAnalysis(){
 }
 
 void variablesAnalysis() {
+    int count = 0;
     do {
         if (token.getTypeString() == "sidentificador") {
             if (!symboltable->containsVar(token.getLexeme())) {
-                symboltable->push(token.getLexeme(), "", "var", "");
+                symboltable->push(token.getLexeme(), "", "var", to_string(memoryPosition + count));
+                count++;
                 getNextToken();
                 if (token.getTypeString() == "svirgula" || token.getTypeString() == "sdoispontos") {
                     if (token.getTypeString() == "svirgula") {
@@ -584,7 +743,8 @@ void variablesAnalysis() {
         }
 
     } while (token.getTypeString() != "sdoispontos");
-
+    gera(" ", "ALLOC", to_string(memoryPosition), to_string(count));
+    memoryPosition += count;
     getNextToken();
     typeAnalysis();
 }
@@ -600,7 +760,7 @@ void variablesDeclarationAnalysis() {
                     getNextToken(); // Avança o token após o ponto e vírgula
                     continue;
                 } else {
-                    cout << 4 << endl;
+
                     throw std::runtime_error("Erro de Sintaxe! Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
                 }
             }
@@ -625,20 +785,28 @@ int main() {
                 symboltable->push(token.getLexeme(), "", "programa", "");
                 getNextToken();
                 if(token.getTypeString() == "sponto_virgula"){
+                    gera(" ", "START", "", "");
+                    gera(" ", "ALLOC", "0", "1");
                     blockAnalysis();
                     if(token.getTypeString() == "sponto"){
+                        int count = symboltable->cutStack();
+                        int dallocStartPosition = memoryPosition - count; // Define a posição de início correta
+                        gera(" ", "DALLOC", to_string(dallocStartPosition), to_string(count));
                         getNextToken();
                         if(token.getTypeString() == "endfile"){
                             cout << "Compilado com sucesso!" << endl;
-                            outputFile << endl << " ------ Compilado com sucesso! --------" << endl << endl;
+                            outputFile << endl << "Compilado com sucesso!" << endl << endl;
                             symboltable->printStack();
+                            gera(" ", "DALLOC", "0", "1");
+                            gera(" ", "HLT", "", "");
+
                         } else
                             throw std::runtime_error("Simbolos invalidos apos o fim do programa na linha: " + std::to_string(lexer.getCurrentLine()));
                     } else {
                         throw std::runtime_error("Espera-se '.' na linha: " + std::to_string(lexer.getCurrentLine()));
                     }
                 } else {
-                    cout << 5 << endl;
+
                     throw std::runtime_error("Espera-se ';' na linha: " + std::to_string(lexer.getCurrentLine()));
                 }
             } else {
@@ -653,7 +821,12 @@ int main() {
         // Em caso de erro, grava a mensagem de erro no arquivo
         cout << "Erro: " <<   e.what() << endl;
         outputFile << lexer.getCurrentLine() << endl << "Erro: " <<   e.what() << endl;
+        assemblyFile.close();
+        assemblyFile.open("assembly.txt", ofstream::out | ofstream::trunc);
+        assemblyFile.close();
+
     }
     outputFile.close();
+    assemblyFile.close();
     return 0;
 }

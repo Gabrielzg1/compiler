@@ -1,5 +1,5 @@
 { teste procedimentos e funcoes aninhados recursivos OK
-escreva as sucessivas somas de traz para frente   
+escreva as sucessivas somas de tras para frente
 8
 8
 12
@@ -16,7 +16,7 @@ programa test;
 var a,b,s: inteiro;                 
                               
  funcao soma: inteiro;
- var c,y,s: inteiro;
+ var c,a,s: inteiro;
      z: booleano;                    
   procedimento ler;          
   inicio

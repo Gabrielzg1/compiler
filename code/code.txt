@@ -1,3 +1,4 @@
+
 { teste procedimentos e funcoes aninhados recursivos OK
 escreva as sucessivas somas de traz para frente
 8
@@ -43,5 +44,4 @@ inicio      {corpo principal}
   s:= soma;
   escreva(s)
 fim.
-
 

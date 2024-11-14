@@ -47,6 +47,7 @@ def run_compiler(code):
         with open(code_file_path, "w") as file:
             file.write(code)
 
+
         # Caminho para o executável
         system = platform.system()
         compiler_executable = os.path.join(build_directory, "compiler.exe") if system == "Windows" else os.path.join(build_directory, "compiler")
@@ -63,12 +64,16 @@ def run_compiler(code):
         # Verifica o arquivo de saída `output.txt`
         output_file_path = os.path.join(build_directory, "output.txt")
         if os.path.exists(output_file_path):
-            return output_file_path  # Retorna o caminho do arquivo de saída para leitura posterior
+            # Ler o conteúdo de output.txt e retornar
+            with open(output_file_path, "r") as output_file:
+                output_content = output_file.read().strip()
+            return {"message": "Execução concluída com sucesso.", "output": output_content}
         else:
             return {"errorLine": None, "message": "Arquivo output.txt não encontrado."}
 
     except Exception as e:
         return {"errorLine": 0, "message": f"Erro durante a execução: {str(e)}"}
+
 
 # Função para converter o conteúdo do arquivo em JSON conforme estrutura esperada
 def parse_instruction(line):
@@ -107,7 +112,7 @@ def generate_json(file_path):
                 parsed_instruction = parse_instruction(line)
                 # Adiciona a linha com os campos mapeados corretamente
                 instructions.append({
-                    "line": index + 1,
+                    "line": index,
                     "label": parsed_instruction["label"],
                     "instruction": parsed_instruction["instruction"],
                     "attribute1": parsed_instruction["attribute1"],
@@ -127,7 +132,6 @@ def compile_code():
         return jsonify({"errorLine": 0, "message": "Nenhum código fornecido"}), 400
 
     result = run_compiler(code)
-    print(code)
     # Se o compilador retornar um erro, ele já será um dicionário com `errorLine` e `message`
     if isinstance(result, dict):
         return jsonify(result)
@@ -138,7 +142,8 @@ def compile_code():
 # Rota para gerar JSON a partir do arquivo de saída
 @app.route('/get_obj', methods=['GET'])
 def generate_json_from_output():
-    output_file_path = os.path.join("test.txt")
+
+    output_file_path = os.path.join(build_directory, "assembly.txt")
 
     if not os.path.exists(output_file_path):
         return jsonify({"error": "Arquivo de saída não encontrado. Execute a compilação primeiro."}), 404
@@ -148,8 +153,11 @@ def generate_json_from_output():
 
 if __name__ == '__main__':
     build_message, build_status = build_compiler()
+
     if build_status != 0:
         print(build_message)
     else:
         print("Servidor iniciado com sucesso!")
     app.run(debug=True)
+
+

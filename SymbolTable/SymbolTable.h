@@ -28,15 +28,15 @@ public:
     bool isEmpty() const;
     SymbolInfo* peek() const;
     bool containsVar(std::string name) const;
-    bool containsProcFunc(std::string name) const;
+    bool contains(std::string name) const;
     void assignTypeToVariables(const std::string& newType);
     void printStack() const;
-    void cutStack();
+    int cutStack();
     void assignTypeToFunction(const std::string& newType);
     vector<string> toPostFix(const vector<string>& input);
-    string inferType(const vector<string>& postFixExpr);
     bool isProcedureOrProgram(const std::string& name);
     string getType(const std::string& name);
+    string getAddress(const std::string& name);
 
 
 
