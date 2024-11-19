@@ -10,12 +10,13 @@ inicio
             resultado := 1
         senao
             resultado := 2
-        
+
     senao
         se y > 0 entao
             resultado := 3
         senao
             resultado := 4;
-    
+
+
     escreva(resultado);
 fim.

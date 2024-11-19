@@ -476,6 +476,7 @@ void atrib_chproc() {
 void ifAnalysis() {
     getNextToken();
     int auxLabel1, auxLabel2;
+    cout << label << endl;
 
     // Análise da expressão condicional E
     std::vector<std::string> infixExpression;
@@ -492,7 +493,7 @@ void ifAnalysis() {
 
     // Rótulo para pular caso a expressão E seja falsa
     auxLabel1 = label;
-    gera(" ", "JMPF", to_string(auxLabel1), "");
+    gera(" ", "JMPF", to_string(label), "");
     label++;
 
     // Analisar o bloco C1 (`entao`)
@@ -503,9 +504,9 @@ void ifAnalysis() {
         // Se houver `senao`
         if (token.getTypeString() == "ssenao") {
             auxLabel2 = label;
-
             // Gerar JMP para pular o bloco `senao` após `entao`
-            gera(" ", "JMP", to_string(auxLabel2), "");
+            gera(" ", "JMP", to_string(label), "");
+            label++;
 
             // Marcar o início do bloco `senao`
             gera(to_string(auxLabel1), "NULL", "", "");
@@ -515,10 +516,12 @@ void ifAnalysis() {
 
             // Finalizar o bloco `senao`
             gera(to_string(auxLabel2), "NULL", "", "");
+
         } else {
             // Caso não haja `senao`, finalizar o bloco `entao`
             gera(to_string(auxLabel1), "NULL", "", "");
         }
+
     } else {
         throw std::runtime_error("Erro de Sintaxe! Espera-se 'entao' na linha: " + std::to_string(lexer.getCurrentLine()));
     }
