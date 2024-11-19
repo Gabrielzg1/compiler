@@ -487,7 +487,7 @@ void ifAnalysis() {
     string expressionType = inferType(postfix);
 
     if (expressionType != "booleano") {
-        throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
+        throw std::runtime_error("Expressao invalida, Linha: " + std::to_string(lexer.getCurrentLine()));
     }
 
     // Rótulo para pular caso a expressão E seja falsa
@@ -538,7 +538,7 @@ void whileAnalysis() {
 
 
     if(expressionType != "booleano"){
-        throw std::runtime_error("Atribuicao de tipos diferentes na linha: " + std::to_string(lexer.getCurrentLine()));
+        throw std::runtime_error("Expressao invalida, Linha: " + std::to_string(lexer.getCurrentLine()));
     }
     // Colocar aqui geracao de código
     geraExpressao(postfix);
