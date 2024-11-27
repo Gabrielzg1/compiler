@@ -586,7 +586,7 @@ void commandsAnalysis() {
                     simpleCommand();
                 }
             } else {
-                throw std::runtime_error("Erro de Sintaxe! Padrao invalido na linha: " + std::to_string(lexer.getCurrentLine()));
+                throw std::runtime_error("Erro! ';' faltante: " + std::to_string(lexer.getCurrentLine()));
             }
         }
         getNextToken();
