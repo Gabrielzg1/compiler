@@ -476,8 +476,6 @@ void atrib_chproc() {
 void ifAnalysis() {
     getNextToken();
     int auxLabel1, auxLabel2;
-    cout << label << endl;
-
     // Análise da expressão condicional E
     std::vector<std::string> infixExpression;
     expressionAnalysis(infixExpression);
@@ -593,7 +591,7 @@ void commandsAnalysis() {
         }
         getNextToken();
     } else {
-        throw std::runtime_error("Erro de Sintaxe! Espera-se 'inicio' na linha: " + std::to_string(lexer.getCurrentLine()));
+        throw std::runtime_error("Erro de Sintaxe! Espera-se 'inicio' ou ';'  inadequado na Linha:  " + std::to_string(lexer.getCurrentLine()));
     }
 }
 
