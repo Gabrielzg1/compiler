@@ -1,15 +1,16 @@
 #ifndef SYMBOL_TABLE_H
 #define SYMBOL_TABLE_H
 
+#include <vector>
 #include <string>
 using namespace std;
 
 // Estrutura que armazena as informações do símbolo
 struct SymbolInfo {
     string name;
-    int scopeLevel;
+    string scopeLevel;
     string type;
-    int memoryAddress;
+    string memoryAddress;
 };
 
 // Estrutura do nó da pilha
@@ -21,17 +22,27 @@ struct Node {
 class SymbolTable {
 public:
     SymbolTable();
-    void push( string name, int scopeLevel, string type, int memoryAddress);
+    ~SymbolTable();
+    void push(string name, string scopeLevel, string type, string memoryAddress);
     void pop();
     bool isEmpty() const;
     SymbolInfo* peek() const;
-    bool contains(std::string name);
+    bool containsVar(std::string name) const;
+    bool contains(std::string name) const;
     void assignTypeToVariables(const std::string& newType);
     void printStack() const;
+    int cutStack();
+    void assignTypeToFunction(const std::string& newType);
+    vector<string> toPostFix(const vector<string>& input);
+    bool isProcedureOrProgram(const std::string& name);
+    string getType(const std::string& name);
+    string getAddress(const std::string& name);
+
 
 
 private:
     Node* top;  // Ponteiro para o topo da pilha
+
 
 };
 
